@@ -1,0 +1,10 @@
+﻿services:
+  softwarerouteur:
+    image: softwarerouteur
+    build:
+      context: .
+      dockerfile: Dockerfile
+  web:
+    env_file:
+      - .env
+
