@@ -1,0 +1,2 @@
+*/5 * * * * /usr/bin/python3 /home/admin/sync_firewall.py
+*/2 * * * * /usr/bin/python3 /home/admin/monitor.py
