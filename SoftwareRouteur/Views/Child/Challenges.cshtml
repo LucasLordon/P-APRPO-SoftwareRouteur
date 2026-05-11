@@ -1,3 +1,4 @@
+@model ChildChallengesViewModel
 @inject IViewLocalizer Localizer
 @{
     ViewData["Title"] = Localizer["Page_Title"].Value;
@@ -8,11 +9,160 @@
     <div>
         <h1 class="sh-page-title">@Localizer["Page_Title"]</h1>
     </div>
+    <button class="sh-btn-primary" onclick="openModal('proposeModal')">
+        <i class="bi bi-plus-lg"></i> @Localizer["Btn_Propose"]
+    </button>
 </div>
 
-<div class="sh-card">
-    <div class="sh-empty">
-        <i class="bi bi-hourglass"></i>
-        <p>@Localizer["Coming_Soon"]</p>
+@if (TempData["Error"] != null)
+{
+    <div class="sh-alert sh-alert-error"><i class="bi bi-exclamation-circle"></i> @TempData["Error"]</div>
+}
+@if (TempData["Success"] != null)
+{
+    <div class="sh-alert sh-alert-success"><i class="bi bi-check-circle"></i> @TempData["Success"]</div>
+}
+
+@if (Model.MyChallenges.Any())
+{
+    <div class="sh-challenges-grid">
+        @foreach (var c in Model.MyChallenges)
+        {
+            <div class="sh-challenge-card">
+                <div class="sh-challenge-card-header">
+                    <span class="sh-badge sh-badge-status-@c.Status">@Localizer["Status_" + char.ToUpper(c.Status[0]) + c.Status[1..]]</span>
+                    @if (c.ParentProfile != null)
+                    {
+                        <span class="sh-challenge-child">@c.ParentProfile.DisplayName</span>
+                    }
+                </div>
+                <h3 class="sh-challenge-title">@c.Title</h3>
+                @if (c.Description != null)
+                {
+                    <p class="sh-challenge-desc">@c.Description</p>
+                }
+                <div class="sh-challenge-meta">
+                    <span><i class="bi bi-clock"></i> @c.RewardMinutes @Localizer["Min_Suffix"]</span>
+                    @if (c.RewardScope == "site")
+                    {
+                        <span><i class="bi bi-globe"></i> @Localizer["Scope_Site"] @c.RewardSite</span>
+                    }
+                    else
+                    {
+                        <span><i class="bi bi-globe"></i> @Localizer["Scope_Global"]</span>
+                    }
+                </div>
+                @if (c.Status == "pending")
+                {
+                    <div class="sh-challenge-card-actions">
+                        <button class="sh-btn-primary"
+                                onclick="openSubmitModal(@c.Id, @c.ProofRequired.ToString().ToLower())">
+                            <i class="bi bi-send"></i> @Localizer["Btn_Submit"]
+                        </button>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="sh-card">
+        <div class="sh-empty">
+            <i class="bi bi-trophy"></i>
+            <p>@Localizer["Empty"]</p>
+        </div>
+    </div>
+}
+
+<!-- Submit Modal -->
+<div id="submitModal" class="sh-modal-backdrop" style="display:none;" onclick="closeModalBackdrop(event,'submitModal')">
+    <div class="sh-modal">
+        <div class="sh-modal-header">
+            <h2 class="sh-modal-title">@Localizer["Modal_Submit_Title"]</h2>
+            <button class="sh-modal-close" onclick="closeModal('submitModal')"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <form id="submitForm" method="post" enctype="multipart/form-data">
+            <div class="sh-modal-body">
+                <div class="sh-form-group">
+                    <label class="sh-label">@Localizer["Field_ProofType"]</label>
+                    <div class="sh-radio-group">
+                        <label class="sh-radio-label">
+                            <input type="radio" name="proofType" value="photo" id="proofTypePhoto" onchange="togglePhotoField(this.value)" />
+                            @Localizer["Proof_Photo"]
+                        </label>
+                        <label class="sh-radio-label" id="selfDeclaredLabel">
+                            <input type="radio" name="proofType" value="self_declared" checked onchange="togglePhotoField(this.value)" />
+                            @Localizer["Proof_SelfDeclared"]
+                        </label>
+                    </div>
+                </div>
+                <div class="sh-form-group" id="photoField" style="display:none;">
+                    <label class="sh-label">@Localizer["Field_Photo"]</label>
+                    <input type="file" name="proofFile" class="sh-input" accept="image/*" />
+                </div>
+            </div>
+            <div class="sh-modal-footer">
+                <button type="submit" class="sh-btn-primary sh-btn-submit">@Localizer["Btn_Submit"]</button>
+                <button type="button" class="sh-btn-cancel" onclick="closeModal('submitModal')">@Localizer["Btn_Cancel"]</button>
+            </div>
+        </form>
     </div>
 </div>
+
+<!-- Propose Modal -->
+<div id="proposeModal" class="sh-modal-backdrop" style="display:none;" onclick="closeModalBackdrop(event,'proposeModal')">
+    <div class="sh-modal">
+        <div class="sh-modal-header">
+            <h2 class="sh-modal-title">@Localizer["Modal_Propose_Title"]</h2>
+            <button class="sh-modal-close" onclick="closeModal('proposeModal')"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <form asp-action="ChallengePropose" method="post">
+            <div class="sh-modal-body">
+                <div class="sh-form-group">
+                    <label class="sh-label">@Localizer["Field_Title"]</label>
+                    <input name="title" type="text" class="sh-input" required maxlength="200" />
+                </div>
+                <div class="sh-form-group">
+                    <label class="sh-label">@Localizer["Field_Description"]</label>
+                    <textarea name="description" class="sh-input" rows="2"></textarea>
+                </div>
+                <div class="sh-form-group">
+                    <label class="sh-label">@Localizer["Field_RewardMinutes"]</label>
+                    <input name="rewardMinutes" type="number" class="sh-input" min="1" max="480" value="30" />
+                </div>
+            </div>
+            <div class="sh-modal-footer">
+                <button type="submit" class="sh-btn-primary sh-btn-submit">@Localizer["Btn_Propose"]</button>
+                <button type="button" class="sh-btn-cancel" onclick="closeModal('proposeModal')">@Localizer["Btn_Cancel"]</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+function closeModalBackdrop(e, id) { if (e.target.id === id) closeModal(id); }
+
+function openSubmitModal(challengeId, proofRequired) {
+    document.getElementById('submitForm').action = '/child/challenges/submit/' + challengeId;
+    const selfLabel = document.getElementById('selfDeclaredLabel');
+    if (proofRequired) {
+        selfLabel.style.display = 'none';
+        document.getElementById('proofTypePhoto').checked = true;
+        togglePhotoField('photo');
+    } else {
+        selfLabel.style.display = '';
+        document.querySelector('input[name="proofType"][value="self_declared"]').checked = true;
+        togglePhotoField('self_declared');
+    }
+    openModal('submitModal');
+}
+
+function togglePhotoField(value) {
+    document.getElementById('photoField').style.display = value === 'photo' ? '' : 'none';
+}
+</script>
+}

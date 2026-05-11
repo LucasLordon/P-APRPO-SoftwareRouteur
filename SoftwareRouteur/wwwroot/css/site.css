@@ -590,6 +590,12 @@ select.sh-input {
   border-color: #3eb2ef;
 }
 
+.sh-action-btn.sh-approve:hover {
+  background: var(--sh-green-50);
+  color: var(--sh-green-600);
+  border-color: #bbf7d0;
+}
+
 /* ══════════════════════════════════════
    Empty state
    ══════════════════════════════════════ */
@@ -1570,3 +1576,248 @@ button.accept-policy {
   white-space: nowrap;
   line-height: 60px;
 }
+
+/* ══════════════════════════════════════
+   Gamification — Challenges & Rewards
+   ══════════════════════════════════════ */
+
+/* ── In-page tabs ── */
+.sh-tabs {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: 2px solid var(--sh-gray-200);
+}
+
+.sh-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.625rem 1.125rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--sh-gray-500);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.sh-tab:hover { color: var(--sh-gray-700); }
+
+.sh-tab-active {
+  color: var(--sh-blue-600);
+  border-bottom-color: var(--sh-blue-600);
+}
+
+/* ── Badge count (tab indicator) ── */
+.sh-badge-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: var(--sh-gray-200);
+  color: var(--sh-gray-700);
+}
+
+.sh-badge-count-warn {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* ── Challenge status badges ── */
+.sh-badge-status-pending   { background: #f3f4f6; color: var(--sh-gray-700); padding: 0.2rem 0.55rem; border-radius: 999px; font-size: 0.78rem; font-weight: 500; }
+.sh-badge-status-submitted { background: #dbeafe; color: #1d4ed8; padding: 0.2rem 0.55rem; border-radius: 999px; font-size: 0.78rem; font-weight: 500; }
+.sh-badge-status-approved  { background: #dcfce7; color: #15803d; padding: 0.2rem 0.55rem; border-radius: 999px; font-size: 0.78rem; font-weight: 500; }
+.sh-badge-status-rejected  { background: #fee2e2; color: #b91c1c; padding: 0.2rem 0.55rem; border-radius: 999px; font-size: 0.78rem; font-weight: 500; }
+.sh-badge-status-proposed  { background: #ede9fe; color: #6d28d9; padding: 0.2rem 0.55rem; border-radius: 999px; font-size: 0.78rem; font-weight: 500; }
+
+/* ── Informational badge ── */
+.sh-badge-info {
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* ── Challenges grid ── */
+.sh-challenges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Challenge card ── */
+.sh-challenge-card {
+  background: #fff;
+  border: 1px solid var(--sh-gray-200);
+  border-radius: 10px;
+  padding: 1.125rem 1.25rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.sh-challenge-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.sh-challenge-child {
+  font-size: 0.8rem;
+  color: var(--sh-gray-500);
+  font-weight: 500;
+}
+
+.sh-challenge-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--sh-gray-900);
+  margin: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.sh-challenge-desc {
+  font-size: 0.875rem;
+  color: var(--sh-gray-500);
+  margin: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.sh-challenge-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.82rem;
+  color: var(--sh-gray-600);
+}
+
+.sh-challenge-card-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+/* ── Proof link ── */
+.sh-proof-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  color: var(--sh-blue-600);
+  text-decoration: none;
+}
+.sh-proof-link:hover { text-decoration: underline; }
+
+/* ── Radio group ── */
+.sh-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.sh-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+/* ── Timer display ── */
+.sh-timer-display {
+  padding: 1.25rem 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sh-timer-value {
+  font-size: 3rem;
+  font-weight: 700;
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  letter-spacing: -0.04em;
+  color: var(--sh-gray-900);
+  margin: 0;
+  line-height: 1;
+}
+
+/* ── Progress bar ── */
+.sh-progress-bar {
+  width: 100%;
+  max-width: 320px;
+  height: 8px;
+  background: var(--sh-gray-200);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.sh-progress-fill {
+  height: 100%;
+  background: var(--sh-green-600);
+  border-radius: 999px;
+  transition: width 1s linear;
+}
+
+.sh-timer-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ── Rewards grid ── */
+.sh-rewards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem 1.25rem;
+}
+
+.sh-reward-card {
+  background: var(--sh-gray-50);
+  border: 1px solid var(--sh-gray-200);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.sh-reward-card-time {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--sh-gray-900);
+}
+
+.sh-reward-card-scope {
+  font-size: 0.82rem;
+  color: var(--sh-gray-500);
+}
+
+/* ── Form check (checkbox row) ── */
+.sh-form-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+

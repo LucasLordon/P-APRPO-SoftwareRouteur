@@ -11,17 +11,105 @@
     </div>
 </div>
 
+@if (TempData["Error"] != null)
+{
+    <div class="sh-alert sh-alert-error"><i class="bi bi-exclamation-circle"></i> @TempData["Error"]</div>
+}
+@if (TempData["Success"] != null)
+{
+    <div class="sh-alert sh-alert-success"><i class="bi bi-check-circle"></i> @TempData["Success"]</div>
+}
+
+<!-- Active / Paused reward timer card -->
 <div class="sh-card" style="margin-bottom: 2rem;">
     <div class="sh-card-header">
-        <h2 class="sh-card-title">@Localizer["Card_Time_Title"]</h2>
+        <h2 class="sh-card-title" id="timerCardTitle">
+            @if (Model.ActiveReward != null)
+            {
+                @(Model.ActiveReward.Status == "active" ? Localizer["Reward_Active_Title"].Value : Localizer["Reward_Paused_Title"].Value)
+            }
+            else
+            {
+                @Localizer["Card_Time_Title"]
+            }
+        </h2>
     </div>
-    <div class="sh-empty">
-        <i class="bi bi-clock"></i>
-        <p style="font-size: 2.5rem; font-weight: 700; color: var(--sh-gray-300); letter-spacing: -0.04em; font-family: 'SF Mono', 'Fira Code', monospace; margin: 0.25rem 0;">@Localizer["Card_Time_Value"]</p>
-        <p>@Localizer["Card_Time_Empty"]</p>
-    </div>
+    @if (Model.ActiveReward != null)
+    {
+        var reward = Model.ActiveReward;
+        var totalSec = reward.TotalMinutes * 60;
+        var pct = totalSec > 0 ? (int)((double)reward.RemainingSeconds / totalSec * 100) : 0;
+        <div class="sh-timer-display">
+            <p class="sh-timer-value" id="timerDisplay">
+                @($"{reward.RemainingSeconds / 60:D2}:{reward.RemainingSeconds % 60:D2}")
+            </p>
+            <div class="sh-progress-bar">
+                <div class="sh-progress-fill" id="timerProgress" style="width: @pct%"></div>
+            </div>
+            <div class="sh-timer-actions">
+                @if (reward.Status == "active")
+                {
+                    <form asp-action="PauseReward" asp-route-rewardId="@reward.Id" method="post" class="sh-form-inline">
+                        <button type="submit" class="sh-btn-primary">
+                            <i class="bi bi-pause-fill"></i> @Localizer["Btn_Pause"]
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <form asp-action="ResumeReward" asp-route-rewardId="@reward.Id" method="post" class="sh-form-inline">
+                        <button type="submit" class="sh-btn-primary">
+                            <i class="bi bi-play-fill"></i> @Localizer["Btn_Resume"]
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="sh-empty">
+            <i class="bi bi-clock"></i>
+            <p style="font-size: 2.5rem; font-weight: 700; color: var(--sh-gray-300); letter-spacing: -0.04em; font-family: 'SF Mono', 'Fira Code', monospace; margin: 0.25rem 0;">@Localizer["Card_Time_Value"]</p>
+            <p>@Localizer["Card_Time_Empty"]</p>
+        </div>
+    }
 </div>
 
+<!-- Available rewards -->
+@if (Model.AvailableRewards.Any())
+{
+    <div class="sh-card" style="margin-bottom: 2rem;">
+        <div class="sh-card-header">
+            <h2 class="sh-card-title">@Localizer["Rewards_Available_Title"]</h2>
+        </div>
+        <div class="sh-rewards-grid">
+            @foreach (var r in Model.AvailableRewards)
+            {
+                <div class="sh-reward-card">
+                    <div class="sh-reward-card-time">@r.TotalMinutes min</div>
+                    <div class="sh-reward-card-scope">
+                        @if (r.Challenge?.RewardScope == "site")
+                        {
+                            <span><i class="bi bi-globe"></i> @Localizer["Scope_Site"] @r.Challenge.RewardSite</span>
+                        }
+                        else
+                        {
+                            <span><i class="bi bi-globe"></i> @Localizer["Scope_Global"]</span>
+                        }
+                    </div>
+                    <form asp-action="ActivateReward" asp-route-rewardId="@r.Id" method="post">
+                        <button type="submit" class="sh-btn-primary" style="width:100%; margin-top: 0.75rem;">
+                            <i class="bi bi-play-fill"></i> @Localizer["Btn_Activate"]
+                        </button>
+                    </form>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<!-- Devices table -->
 <div class="sh-card">
     <div class="sh-card-header">
         <h2 class="sh-card-title">@Localizer["Table_Title"]</h2>
@@ -57,3 +145,39 @@
         </div>
     }
 </div>
+
+@if (Model.ActiveReward?.Status == "active")
+{
+    @section Scripts {
+    <script>
+    (function () {
+        var totalSeconds = @Model.ActiveReward.RemainingSeconds;
+        var totalMax = @(Model.ActiveReward.TotalMinutes * 60);
+
+        function fmt(s) {
+            var m = Math.floor(s / 60);
+            var sec = s % 60;
+            return (m < 10 ? '0' : '') + m + ':' + (sec < 10 ? '0' : '') + sec;
+        }
+
+        function tick() {
+            fetch('/child/home/timer')
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.active || data.status !== 'active') {
+                        location.reload();
+                        return;
+                    }
+                    totalSeconds = data.remainingSeconds;
+                    document.getElementById('timerDisplay').textContent = fmt(totalSeconds);
+                    var pct = totalMax > 0 ? Math.round(totalSeconds / totalMax * 100) : 0;
+                    document.getElementById('timerProgress').style.width = pct + '%';
+                })
+                .catch(() => {});
+        }
+
+        setInterval(tick, 5000);
+    })();
+    </script>
+    }
+}

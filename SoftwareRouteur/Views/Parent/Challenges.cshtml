@@ -1,18 +1,309 @@
+@model ParentChallengesViewModel
 @inject IViewLocalizer Localizer
 @{
     ViewData["Title"] = Localizer["Page_Title"].Value;
     Layout = "_LayoutParent";
+    var confirmDelete = Localizer["Modal_Delete_Confirm"].Value;
 }
 
 <div class="sh-page-header">
     <div>
         <h1 class="sh-page-title">@Localizer["Page_Title"]</h1>
     </div>
+    <button class="sh-btn-primary" onclick="openModal('createModal')">
+        <i class="bi bi-plus-lg"></i> @Localizer["Btn_Create"]
+    </button>
 </div>
 
-<div class="sh-card">
-    <div class="sh-empty">
-        <i class="bi bi-hourglass"></i>
-        <p>@Localizer["Coming_Soon"]</p>
+@if (TempData["Error"] != null)
+{
+    <div class="sh-alert sh-alert-error"><i class="bi bi-exclamation-circle"></i> @TempData["Error"]</div>
+}
+@if (TempData["Success"] != null)
+{
+    <div class="sh-alert sh-alert-success"><i class="bi bi-check-circle"></i> @TempData["Success"]</div>
+}
+
+<div class="sh-tabs" style="margin-bottom: 1.5rem;">
+    <button class="sh-tab sh-tab-active" onclick="switchTab('tabActive', this)">
+        @Localizer["Tab_Active"]
+        @if (Model.ActiveChallenges.Count > 0)
+        {
+            <span class="sh-badge-count">@Model.ActiveChallenges.Count</span>
+        }
+    </button>
+    <button class="sh-tab" onclick="switchTab('tabPending', this)">
+        @Localizer["Tab_PendingApproval"]
+        @if (Model.PendingApproval.Count > 0)
+        {
+            <span class="sh-badge-count sh-badge-count-warn">@Model.PendingApproval.Count</span>
+        }
+    </button>
+</div>
+
+<div id="tabActive">
+    <div class="sh-card">
+        @if (Model.ActiveChallenges.Any())
+        {
+            <table class="sh-table">
+                <thead>
+                <tr>
+                    <th>@Localizer["Col_Child"]</th>
+                    <th>@Localizer["Col_Creator"]</th>
+                    <th>@Localizer["Col_Title"]</th>
+                    <th>@Localizer["Col_Duration"]</th>
+                    <th>@Localizer["Col_Scope"]</th>
+                    <th>@Localizer["Col_Status"]</th>
+                    <th>@Localizer["Col_Date"]</th>
+                    <th class="sh-col-actions">@Localizer["Col_Actions"]</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var c in Model.ActiveChallenges)
+                {
+                    <tr>
+                        <td>@c.ChildProfile?.DisplayName</td>
+                        <td>@c.ParentProfile?.DisplayName</td>
+                        <td>@c.Title</td>
+                        <td>@c.RewardMinutes @Localizer["Min_Suffix"]</td>
+                        <td>
+                            @if (c.RewardScope == "site")
+                            {
+                                <span class="sh-badge sh-badge-type">@c.RewardSite</span>
+                            }
+                            else
+                            {
+                                @Localizer["Scope_Global"]
+                            }
+                        </td>
+                        <td><span class="sh-badge sh-badge-status-@c.Status">@Localizer["Status_" + char.ToUpper(c.Status[0]) + c.Status[1..]]</span></td>
+                        <td>@c.CreatedAt.ToString("dd.MM.yyyy")</td>
+                        <td class="sh-col-actions">
+                            @if (c.ParentProfileId == Model.CurrentParentId && c.Status == "pending")
+                            {
+                                <button class="sh-action-btn" title="@Localizer["Btn_Edit"]"
+                                        onclick="openEditModal(@c.Id, '@Html.Raw(c.Title.Replace("'","\\\'"))', '@Html.Raw((c.Description ?? "").Replace("'","\\\'"))', @c.RewardMinutes, '@c.RewardScope', '@(c.RewardSite ?? "")', @c.ChildProfileId, @c.ProofRequired.ToString().ToLower())">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                            }
+                            @if (c.ParentProfileId == Model.CurrentParentId)
+                            {
+                                <form asp-action="ChallengeDelete" asp-route-id="@c.Id" method="post" class="sh-form-inline"
+                                      onsubmit="return confirm('@Html.Raw(confirmDelete) « @Html.Raw(c.Title.Replace("'", "\\'")) »')">
+                                    <button type="submit" class="sh-action-btn sh-delete" title="@Localizer["Btn_Delete"]">
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="sh-empty">
+                <i class="bi bi-trophy"></i>
+                <p>@Localizer["Empty_Active"]</p>
+            </div>
+        }
     </div>
 </div>
+
+<div id="tabPending" style="display:none;">
+    <div class="sh-challenges-grid">
+        @if (Model.PendingApproval.Any())
+        {
+            @foreach (var c in Model.PendingApproval)
+            {
+                <div class="sh-challenge-card">
+                    <div class="sh-challenge-card-header">
+                        <span class="sh-badge sh-badge-status-submitted">@Localizer["Status_Submitted"]</span>
+                        <span class="sh-challenge-child">@c.ChildProfile?.DisplayName</span>
+                    </div>
+                    <h3 class="sh-challenge-title">@c.Title</h3>
+                    @if (c.Description != null)
+                    {
+                        <p class="sh-challenge-desc">@c.Description</p>
+                    }
+                    <div class="sh-challenge-meta">
+                        <span><i class="bi bi-clock"></i> @c.RewardMinutes @Localizer["Min_Suffix"]</span>
+                        @if (c.RewardScope == "site")
+                        {
+                            <span><i class="bi bi-globe"></i> @c.RewardSite</span>
+                        }
+                        else
+                        {
+                            <span><i class="bi bi-globe"></i> @Localizer["Scope_Global"]</span>
+                        }
+                    </div>
+                    @foreach (var proof in c.Proofs)
+                    {
+                        if (proof.FilePath != null)
+                        {
+                            <a href="@proof.FilePath" target="_blank" class="sh-proof-link">
+                                <i class="bi bi-image"></i> @Localizer["Proof_View"]
+                            </a>
+                        }
+                    }
+                    <div class="sh-challenge-card-actions">
+                        <form asp-action="ChallengeApprove" asp-route-id="@c.Id" method="post" class="sh-form-inline">
+                            <button type="submit" class="sh-btn-primary">
+                                <i class="bi bi-check-lg"></i> @Localizer["Btn_Approve"]
+                            </button>
+                        </form>
+                        <form asp-action="ChallengeReject" asp-route-id="@c.Id" method="post" class="sh-form-inline">
+                            <button type="submit" class="sh-btn-cancel">
+                                <i class="bi bi-x-lg"></i> @Localizer["Btn_Reject"]
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="sh-card">
+                <div class="sh-empty">
+                    <i class="bi bi-inbox"></i>
+                    <p>@Localizer["Empty_Pending"]</p>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Create Modal -->
+<div id="createModal" class="sh-modal-backdrop" style="display:none;" onclick="closeModalBackdrop(event,'createModal')">
+    <div class="sh-modal">
+        <div class="sh-modal-header">
+            <h2 class="sh-modal-title">@Localizer["Modal_Create_Title"]</h2>
+            <button class="sh-modal-close" onclick="closeModal('createModal')"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <form asp-action="ChallengeCreate" method="post">
+            <div class="sh-modal-body">
+                <div class="sh-form-group">
+                    <label class="sh-label">@Localizer["Field_Child"]</label>
+                    <select name="childProfileId" class="sh-input sh-select" required>
+                        @foreach (var child in Model.ChildProfiles)
+                        {
+                            <option value="@child.Id">@child.DisplayName</option>
+                        }
+                    </select>
+                </div>
+                <div class="sh-form-group">
+                    <label class="sh-label">@Localizer["Field_Title"]</label>
+                    <input name="title" type="text" class="sh-input" required maxlength="200" />
+                </div>
+                <div class="sh-form-group">
+                    <label class="sh-label">@Localizer["Field_Description"]</label>
+                    <textarea name="description" class="sh-input" rows="2"></textarea>
+                </div>
+                <div class="sh-form-group">
+                    <label class="sh-label">@Localizer["Field_RewardMinutes"]</label>
+                    <input name="rewardMinutes" type="number" class="sh-input" min="1" max="480" value="30" required />
+                </div>
+                <div class="sh-form-group">
+                    <label class="sh-label">@Localizer["Field_RewardScope"]</label>
+                    <select name="rewardScope" class="sh-input sh-select" id="createScope" onchange="toggleSiteField('createScope','createSiteField')">
+                        <option value="global">@Localizer["Scope_Global"]</option>
+                        <option value="site">@Localizer["Scope_Site"]</option>
+                    </select>
+                </div>
+                <div class="sh-form-group" id="createSiteField" style="display:none;">
+                    <label class="sh-label">@Localizer["Field_RewardSite"]</label>
+                    <input name="rewardSite" type="text" class="sh-input" placeholder="youtube.com" />
+                </div>
+                <div class="sh-form-group sh-form-check">
+                    <input name="proofRequired" type="checkbox" id="createProofRequired" value="true" checked />
+                    <input name="proofRequired" type="hidden" value="false" />
+                    <label for="createProofRequired">@Localizer["Field_ProofRequired"]</label>
+                </div>
+            </div>
+            <div class="sh-modal-footer">
+                <button type="submit" class="sh-btn-primary sh-btn-submit">@Localizer["Btn_Save"]</button>
+                <button type="button" class="sh-btn-cancel" onclick="closeModal('createModal')">@Localizer["Btn_Cancel"]</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div id="editModal" class="sh-modal-backdrop" style="display:none;" onclick="closeModalBackdrop(event,'editModal')">
+    <div class="sh-modal">
+        <div class="sh-modal-header">
+            <h2 class="sh-modal-title">@Localizer["Modal_Edit_Title"]</h2>
+            <button class="sh-modal-close" onclick="closeModal('editModal')"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <form id="editForm" method="post">
+            <div class="sh-modal-body">
+                <div class="sh-form-group">
+                    <label class="sh-label">@Localizer["Field_Title"]</label>
+                    <input id="editTitle" name="title" type="text" class="sh-input" required maxlength="200" />
+                </div>
+                <div class="sh-form-group">
+                    <label class="sh-label">@Localizer["Field_Description"]</label>
+                    <textarea id="editDescription" name="description" class="sh-input" rows="2"></textarea>
+                </div>
+                <div class="sh-form-group">
+                    <label class="sh-label">@Localizer["Field_RewardMinutes"]</label>
+                    <input id="editRewardMinutes" name="rewardMinutes" type="number" class="sh-input" min="1" max="480" required />
+                </div>
+                <div class="sh-form-group">
+                    <label class="sh-label">@Localizer["Field_RewardScope"]</label>
+                    <select id="editScope" name="rewardScope" class="sh-input sh-select" onchange="toggleSiteField('editScope','editSiteField')">
+                        <option value="global">@Localizer["Scope_Global"]</option>
+                        <option value="site">@Localizer["Scope_Site"]</option>
+                    </select>
+                </div>
+                <div class="sh-form-group" id="editSiteField" style="display:none;">
+                    <label class="sh-label">@Localizer["Field_RewardSite"]</label>
+                    <input id="editRewardSite" name="rewardSite" type="text" class="sh-input" placeholder="youtube.com" />
+                </div>
+                <div class="sh-form-group sh-form-check">
+                    <input id="editProofRequired" name="proofRequired" type="checkbox" value="true" />
+                    <input name="proofRequired" type="hidden" value="false" />
+                    <label for="editProofRequired">@Localizer["Field_ProofRequired"]</label>
+                </div>
+            </div>
+            <div class="sh-modal-footer">
+                <button type="submit" class="sh-btn-primary sh-btn-submit">@Localizer["Btn_Save"]</button>
+                <button type="button" class="sh-btn-cancel" onclick="closeModal('editModal')">@Localizer["Btn_Cancel"]</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+function switchTab(tabId, btn) {
+    document.querySelectorAll('[id^="tab"]').forEach(t => t.style.display = 'none');
+    document.querySelectorAll('.sh-tab').forEach(b => b.classList.remove('sh-tab-active'));
+    document.getElementById(tabId).style.display = '';
+    btn.classList.add('sh-tab-active');
+}
+
+function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+function closeModalBackdrop(e, id) { if (e.target.id === id) closeModal(id); }
+
+function toggleSiteField(selectId, fieldId) {
+    const val = document.getElementById(selectId).value;
+    document.getElementById(fieldId).style.display = val === 'site' ? '' : 'none';
+}
+
+function openEditModal(id, title, desc, minutes, scope, site, childId, proofRequired) {
+    document.getElementById('editForm').action = '/parent/challenges/edit/' + id;
+    document.getElementById('editTitle').value = title;
+    document.getElementById('editDescription').value = desc;
+    document.getElementById('editRewardMinutes').value = minutes;
+    const scopeEl = document.getElementById('editScope');
+    scopeEl.value = scope;
+    toggleSiteField('editScope', 'editSiteField');
+    document.getElementById('editRewardSite').value = site;
+    document.getElementById('editProofRequired').checked = proofRequired;
+    openModal('editModal');
+}
+</script>
+}
