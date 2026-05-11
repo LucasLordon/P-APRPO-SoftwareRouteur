@@ -34,6 +34,7 @@ builder.Services.Configure<OPNsenseSettings>(
     builder.Configuration.GetSection("OPNsense"));
 
 builder.Services.AddSingleton<OPNsenseService>();
+builder.Services.AddHostedService<RewardTimerService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
