@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <data name="Challenge_Error_NotFound" xml:space="preserve"><value>Challenge not found.</value></data>
+  <data name="Challenge_Error_InvalidChild" xml:space="preserve"><value>Selected child profile is invalid.</value></data>
+  <data name="Challenge_Error_InvalidStatus" xml:space="preserve"><value>This challenge cannot be modified in its current state.</value></data>
+  <data name="Challenge_Error_Required" xml:space="preserve"><value>Title and duration are required.</value></data>
+  <data name="Challenge_Error_InvalidScope" xml:space="preserve"><value>Invalid scope. Choose "global" or "site".</value></data>
+  <data name="Challenge_Error_SiteRequired" xml:space="preserve"><value>A site address is required for the "site" scope.</value></data>
+  <data name="Challenge_Success_Created" xml:space="preserve"><value>Challenge created successfully.</value></data>
+  <data name="Challenge_Success_Updated" xml:space="preserve"><value>Challenge updated successfully.</value></data>
+  <data name="Challenge_Success_Deleted" xml:space="preserve"><value>Challenge deleted.</value></data>
+  <data name="Challenge_Success_Approved" xml:space="preserve"><value>Challenge approved — reward granted.</value></data>
+  <data name="Challenge_Success_Rejected" xml:space="preserve"><value>Challenge rejected.</value></data>
+</root>

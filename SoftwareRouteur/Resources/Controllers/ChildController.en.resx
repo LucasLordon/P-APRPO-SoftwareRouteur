@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <data name="Challenge_Error_NotFound" xml:space="preserve"><value>Challenge not found.</value></data>
+  <data name="Challenge_Error_InvalidStatus" xml:space="preserve"><value>This challenge cannot be submitted in its current state.</value></data>
+  <data name="Challenge_Error_FileType" xml:space="preserve"><value>Only images (jpg, png, gif, webp) are accepted.</value></data>
+  <data name="Challenge_Error_FileSize" xml:space="preserve"><value>The photo must not exceed 5 MB.</value></data>
+  <data name="Challenge_Error_NoProof" xml:space="preserve"><value>A proof is required for this challenge.</value></data>
+  <data name="Challenge_Error_Required" xml:space="preserve"><value>Title is required.</value></data>
+  <data name="Challenge_Success_Submitted" xml:space="preserve"><value>Challenge submitted successfully.</value></data>
+  <data name="Challenge_Success_Proposed" xml:space="preserve"><value>Challenge proposed successfully.</value></data>
+  <data name="Reward_Error_NotFound" xml:space="preserve"><value>Reward not found.</value></data>
+  <data name="Reward_Error_InvalidStatus" xml:space="preserve"><value>This reward cannot be modified in its current state.</value></data>
+  <data name="Reward_Success_Activated" xml:space="preserve"><value>Browsing time activated.</value></data>
+  <data name="Reward_Success_Paused" xml:space="preserve"><value>Browsing time paused.</value></data>
+  <data name="Reward_Success_Resumed" xml:space="preserve"><value>Browsing time resumed.</value></data>
+</root>

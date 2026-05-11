@@ -3,5 +3,45 @@
   <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
   <resheader name="version"><value>2.0</value></resheader>
   <data name="Page_Title" xml:space="preserve"><value>Challenges</value></data>
-  <data name="Coming_Soon" xml:space="preserve"><value>Coming soon.</value></data>
+  <data name="Tab_Active" xml:space="preserve"><value>Active Challenges</value></data>
+  <data name="Tab_PendingApproval" xml:space="preserve"><value>Awaiting Approval</value></data>
+  <data name="Btn_Create" xml:space="preserve"><value>New Challenge</value></data>
+  <data name="Col_Child" xml:space="preserve"><value>Child</value></data>
+  <data name="Col_Creator" xml:space="preserve"><value>Created by</value></data>
+  <data name="Col_Title" xml:space="preserve"><value>Title</value></data>
+  <data name="Col_Duration" xml:space="preserve"><value>Duration</value></data>
+  <data name="Col_Scope" xml:space="preserve"><value>Scope</value></data>
+  <data name="Col_Reward" xml:space="preserve"><value>Reward</value></data>
+  <data name="Col_Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Col_Date" xml:space="preserve"><value>Date</value></data>
+  <data name="Col_Actions" xml:space="preserve"><value>Actions</value></data>
+  <data name="Status_Pending" xml:space="preserve"><value>Pending</value></data>
+  <data name="Status_Submitted" xml:space="preserve"><value>Submitted</value></data>
+  <data name="Status_Approved" xml:space="preserve"><value>Approved</value></data>
+  <data name="Status_Rejected" xml:space="preserve"><value>Rejected</value></data>
+  <data name="Status_Proposed" xml:space="preserve"><value>Proposed</value></data>
+  <data name="Btn_Edit" xml:space="preserve"><value>Edit</value></data>
+  <data name="Btn_Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Btn_Approve" xml:space="preserve"><value>Approve</value></data>
+  <data name="Btn_Reject" xml:space="preserve"><value>Reject</value></data>
+  <data name="Btn_Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Btn_Confirm" xml:space="preserve"><value>Confirm</value></data>
+  <data name="Btn_Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Modal_Create_Title" xml:space="preserve"><value>Create a Challenge</value></data>
+  <data name="Modal_Edit_Title" xml:space="preserve"><value>Edit Challenge</value></data>
+  <data name="Modal_Delete_Title" xml:space="preserve"><value>Delete Challenge?</value></data>
+  <data name="Modal_Delete_Confirm" xml:space="preserve"><value>Are you sure you want to delete this challenge?</value></data>
+  <data name="Field_Title" xml:space="preserve"><value>Title</value></data>
+  <data name="Field_Description" xml:space="preserve"><value>Description (optional)</value></data>
+  <data name="Field_RewardMinutes" xml:space="preserve"><value>Duration (minutes)</value></data>
+  <data name="Field_RewardScope" xml:space="preserve"><value>Scope</value></data>
+  <data name="Field_RewardSite" xml:space="preserve"><value>Domain (e.g. youtube.com)</value></data>
+  <data name="Field_ProofRequired" xml:space="preserve"><value>Proof required</value></data>
+  <data name="Field_Child" xml:space="preserve"><value>Child</value></data>
+  <data name="Scope_Global" xml:space="preserve"><value>All internet</value></data>
+  <data name="Scope_Site" xml:space="preserve"><value>Specific site</value></data>
+  <data name="Min_Suffix" xml:space="preserve"><value>min</value></data>
+  <data name="Proof_View" xml:space="preserve"><value>View proof</value></data>
+  <data name="Empty_Active" xml:space="preserve"><value>No active challenges.</value></data>
+  <data name="Empty_Pending" xml:space="preserve"><value>No challenges awaiting approval.</value></data>
 </root>

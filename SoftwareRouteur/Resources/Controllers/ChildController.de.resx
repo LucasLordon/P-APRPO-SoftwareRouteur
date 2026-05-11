@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <data name="Challenge_Error_NotFound" xml:space="preserve"><value>Herausforderung nicht gefunden.</value></data>
+  <data name="Challenge_Error_InvalidStatus" xml:space="preserve"><value>Diese Herausforderung kann im aktuellen Zustand nicht eingereicht werden.</value></data>
+  <data name="Challenge_Error_FileType" xml:space="preserve"><value>Nur Bilder (jpg, png, gif, webp) werden akzeptiert.</value></data>
+  <data name="Challenge_Error_FileSize" xml:space="preserve"><value>Das Foto darf 5 MB nicht überschreiten.</value></data>
+  <data name="Challenge_Error_NoProof" xml:space="preserve"><value>Für diese Herausforderung ist ein Nachweis erforderlich.</value></data>
+  <data name="Challenge_Error_Required" xml:space="preserve"><value>Titel ist erforderlich.</value></data>
+  <data name="Challenge_Success_Submitted" xml:space="preserve"><value>Herausforderung erfolgreich eingereicht.</value></data>
+  <data name="Challenge_Success_Proposed" xml:space="preserve"><value>Herausforderung erfolgreich vorgeschlagen.</value></data>
+  <data name="Reward_Error_NotFound" xml:space="preserve"><value>Belohnung nicht gefunden.</value></data>
+  <data name="Reward_Error_InvalidStatus" xml:space="preserve"><value>Diese Belohnung kann im aktuellen Zustand nicht geändert werden.</value></data>
+  <data name="Reward_Success_Activated" xml:space="preserve"><value>Surfzeit aktiviert.</value></data>
+  <data name="Reward_Success_Paused" xml:space="preserve"><value>Surfzeit pausiert.</value></data>
+  <data name="Reward_Success_Resumed" xml:space="preserve"><value>Surfzeit fortgesetzt.</value></data>
+</root>

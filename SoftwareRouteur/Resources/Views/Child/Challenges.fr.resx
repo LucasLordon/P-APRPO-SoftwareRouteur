@@ -3,5 +3,28 @@
   <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
   <resheader name="version"><value>2.0</value></resheader>
   <data name="Page_Title" xml:space="preserve"><value>Challenges</value></data>
-  <data name="Coming_Soon" xml:space="preserve"><value>Fonctionnalité à venir.</value></data>
+  <data name="Tab_Challenges" xml:space="preserve"><value>Mes défis</value></data>
+  <data name="Tab_Propose" xml:space="preserve"><value>Proposer</value></data>
+  <data name="Status_Pending" xml:space="preserve"><value>En attente</value></data>
+  <data name="Status_Submitted" xml:space="preserve"><value>Soumis</value></data>
+  <data name="Status_Approved" xml:space="preserve"><value>Approuvé</value></data>
+  <data name="Status_Rejected" xml:space="preserve"><value>Refusé</value></data>
+  <data name="Status_Proposed" xml:space="preserve"><value>Proposé</value></data>
+  <data name="Card_Reward" xml:space="preserve"><value>Récompense :</value></data>
+  <data name="Btn_Submit" xml:space="preserve"><value>Soumettre</value></data>
+  <data name="Btn_Propose" xml:space="preserve"><value>Proposer un défi</value></data>
+  <data name="Btn_Cancel" xml:space="preserve"><value>Annuler</value></data>
+  <data name="Modal_Submit_Title" xml:space="preserve"><value>Soumettre le défi</value></data>
+  <data name="Modal_Propose_Title" xml:space="preserve"><value>Proposer un défi</value></data>
+  <data name="Field_ProofType" xml:space="preserve"><value>Type de preuve</value></data>
+  <data name="Proof_Photo" xml:space="preserve"><value>Photo</value></data>
+  <data name="Proof_SelfDeclared" xml:space="preserve"><value>Sur l'honneur</value></data>
+  <data name="Field_Photo" xml:space="preserve"><value>Télécharger une photo</value></data>
+  <data name="Field_Title" xml:space="preserve"><value>Titre</value></data>
+  <data name="Field_Description" xml:space="preserve"><value>Description (optionnel)</value></data>
+  <data name="Field_RewardMinutes" xml:space="preserve"><value>Durée souhaitée (min)</value></data>
+  <data name="Min_Suffix" xml:space="preserve"><value>min</value></data>
+  <data name="Empty" xml:space="preserve"><value>Aucun défi pour le moment.</value></data>
+  <data name="Scope_Global" xml:space="preserve"><value>Tout l'internet</value></data>
+  <data name="Scope_Site" xml:space="preserve"><value>Site :</value></data>
 </root>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <data name="Challenge_Error_NotFound" xml:space="preserve"><value>Défi introuvable.</value></data>
+  <data name="Challenge_Error_InvalidChild" xml:space="preserve"><value>Enfant sélectionné invalide.</value></data>
+  <data name="Challenge_Error_InvalidStatus" xml:space="preserve"><value>Ce défi ne peut pas être modifié dans son état actuel.</value></data>
+  <data name="Challenge_Error_Required" xml:space="preserve"><value>Le titre et la durée sont obligatoires.</value></data>
+  <data name="Challenge_Error_InvalidScope" xml:space="preserve"><value>Portée invalide. Choisissez « global » ou « site ».</value></data>
+  <data name="Challenge_Error_SiteRequired" xml:space="preserve"><value>L'adresse du site est requise pour la portée « site ».</value></data>
+  <data name="Challenge_Success_Created" xml:space="preserve"><value>Défi créé avec succès.</value></data>
+  <data name="Challenge_Success_Updated" xml:space="preserve"><value>Défi modifié avec succès.</value></data>
+  <data name="Challenge_Success_Deleted" xml:space="preserve"><value>Défi supprimé.</value></data>
+  <data name="Challenge_Success_Approved" xml:space="preserve"><value>Défi approuvé — récompense accordée.</value></data>
+  <data name="Challenge_Success_Rejected" xml:space="preserve"><value>Défi refusé.</value></data>
+</root>

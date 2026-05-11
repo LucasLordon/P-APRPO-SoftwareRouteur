@@ -12,4 +12,13 @@
   <data name="Col_Ip" xml:space="preserve"><value>IP-Adresse</value></data>
   <data name="Col_Status" xml:space="preserve"><value>Status</value></data>
   <data name="Empty" xml:space="preserve"><value>Keine Geräte deinem Profil zugewiesen.</value></data>
+  <data name="Reward_Active_Title" xml:space="preserve"><value>Laufende Surfzeit</value></data>
+  <data name="Reward_Paused_Title" xml:space="preserve"><value>Surfzeit pausiert</value></data>
+  <data name="Btn_Pause" xml:space="preserve"><value>Pausieren</value></data>
+  <data name="Btn_Resume" xml:space="preserve"><value>Fortsetzen</value></data>
+  <data name="Rewards_Available_Title" xml:space="preserve"><value>Verfügbare Belohnungen</value></data>
+  <data name="Btn_Activate" xml:space="preserve"><value>Aktivieren</value></data>
+  <data name="Empty_Rewards" xml:space="preserve"><value>Keine Belohnungen verfügbar.</value></data>
+  <data name="Scope_Global" xml:space="preserve"><value>Gesamtes Internet</value></data>
+  <data name="Scope_Site" xml:space="preserve"><value>Website:</value></data>
 </root>

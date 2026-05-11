@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <data name="Challenge_Error_NotFound" xml:space="preserve"><value>Défi introuvable.</value></data>
+  <data name="Challenge_Error_InvalidStatus" xml:space="preserve"><value>Ce défi ne peut pas être soumis dans son état actuel.</value></data>
+  <data name="Challenge_Error_FileType" xml:space="preserve"><value>Seules les images (jpg, png, gif, webp) sont acceptées.</value></data>
+  <data name="Challenge_Error_FileSize" xml:space="preserve"><value>La photo ne doit pas dépasser 5 Mo.</value></data>
+  <data name="Challenge_Error_NoProof" xml:space="preserve"><value>Une preuve est requise pour ce défi.</value></data>
+  <data name="Challenge_Error_Required" xml:space="preserve"><value>Le titre est obligatoire.</value></data>
+  <data name="Challenge_Success_Submitted" xml:space="preserve"><value>Défi soumis avec succès.</value></data>
+  <data name="Challenge_Success_Proposed" xml:space="preserve"><value>Défi proposé avec succès.</value></data>
+  <data name="Reward_Error_NotFound" xml:space="preserve"><value>Récompense introuvable.</value></data>
+  <data name="Reward_Error_InvalidStatus" xml:space="preserve"><value>Cette récompense ne peut pas être modifiée dans son état actuel.</value></data>
+  <data name="Reward_Success_Activated" xml:space="preserve"><value>Temps de navigation activé.</value></data>
+  <data name="Reward_Success_Paused" xml:space="preserve"><value>Temps de navigation mis en pause.</value></data>
+  <data name="Reward_Success_Resumed" xml:space="preserve"><value>Temps de navigation repris.</value></data>
+</root>

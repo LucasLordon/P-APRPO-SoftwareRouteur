@@ -3,5 +3,45 @@
   <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
   <resheader name="version"><value>2.0</value></resheader>
   <data name="Page_Title" xml:space="preserve"><value>Challenges</value></data>
-  <data name="Coming_Soon" xml:space="preserve"><value>Demnächst verfügbar.</value></data>
+  <data name="Tab_Active" xml:space="preserve"><value>Aktive Herausforderungen</value></data>
+  <data name="Tab_PendingApproval" xml:space="preserve"><value>Zu genehmigen</value></data>
+  <data name="Btn_Create" xml:space="preserve"><value>Neue Herausforderung</value></data>
+  <data name="Col_Child" xml:space="preserve"><value>Kind</value></data>
+  <data name="Col_Creator" xml:space="preserve"><value>Erstellt von</value></data>
+  <data name="Col_Title" xml:space="preserve"><value>Titel</value></data>
+  <data name="Col_Duration" xml:space="preserve"><value>Dauer</value></data>
+  <data name="Col_Scope" xml:space="preserve"><value>Bereich</value></data>
+  <data name="Col_Reward" xml:space="preserve"><value>Belohnung</value></data>
+  <data name="Col_Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Col_Date" xml:space="preserve"><value>Datum</value></data>
+  <data name="Col_Actions" xml:space="preserve"><value>Aktionen</value></data>
+  <data name="Status_Pending" xml:space="preserve"><value>Ausstehend</value></data>
+  <data name="Status_Submitted" xml:space="preserve"><value>Eingereicht</value></data>
+  <data name="Status_Approved" xml:space="preserve"><value>Genehmigt</value></data>
+  <data name="Status_Rejected" xml:space="preserve"><value>Abgelehnt</value></data>
+  <data name="Status_Proposed" xml:space="preserve"><value>Vorgeschlagen</value></data>
+  <data name="Btn_Edit" xml:space="preserve"><value>Bearbeiten</value></data>
+  <data name="Btn_Delete" xml:space="preserve"><value>Löschen</value></data>
+  <data name="Btn_Approve" xml:space="preserve"><value>Genehmigen</value></data>
+  <data name="Btn_Reject" xml:space="preserve"><value>Ablehnen</value></data>
+  <data name="Btn_Cancel" xml:space="preserve"><value>Abbrechen</value></data>
+  <data name="Btn_Confirm" xml:space="preserve"><value>Bestätigen</value></data>
+  <data name="Btn_Save" xml:space="preserve"><value>Speichern</value></data>
+  <data name="Modal_Create_Title" xml:space="preserve"><value>Herausforderung erstellen</value></data>
+  <data name="Modal_Edit_Title" xml:space="preserve"><value>Herausforderung bearbeiten</value></data>
+  <data name="Modal_Delete_Title" xml:space="preserve"><value>Herausforderung löschen?</value></data>
+  <data name="Modal_Delete_Confirm" xml:space="preserve"><value>Soll diese Herausforderung wirklich gelöscht werden?</value></data>
+  <data name="Field_Title" xml:space="preserve"><value>Titel</value></data>
+  <data name="Field_Description" xml:space="preserve"><value>Beschreibung (optional)</value></data>
+  <data name="Field_RewardMinutes" xml:space="preserve"><value>Dauer (Minuten)</value></data>
+  <data name="Field_RewardScope" xml:space="preserve"><value>Gültigkeitsbereich</value></data>
+  <data name="Field_RewardSite" xml:space="preserve"><value>Domain (z.B. youtube.com)</value></data>
+  <data name="Field_ProofRequired" xml:space="preserve"><value>Nachweis erforderlich</value></data>
+  <data name="Field_Child" xml:space="preserve"><value>Kind</value></data>
+  <data name="Scope_Global" xml:space="preserve"><value>Gesamtes Internet</value></data>
+  <data name="Scope_Site" xml:space="preserve"><value>Bestimmte Website</value></data>
+  <data name="Min_Suffix" xml:space="preserve"><value>Min.</value></data>
+  <data name="Proof_View" xml:space="preserve"><value>Nachweis ansehen</value></data>
+  <data name="Empty_Active" xml:space="preserve"><value>Keine aktiven Herausforderungen.</value></data>
+  <data name="Empty_Pending" xml:space="preserve"><value>Keine ausstehenden Genehmigungen.</value></data>
 </root>
