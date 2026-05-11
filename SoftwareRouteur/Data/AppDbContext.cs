@@ -16,6 +16,9 @@ public class AppDbContext : DbContext
     public DbSet<Monitoring> Monitorings { get; set; }
     public DbSet<BlockedTraffic> BlockedTraffics { get; set; }
     public DbSet<Profile> Profiles { get; set; }
+    public DbSet<Challenge> Challenges { get; set; }
+    public DbSet<ChallengeProof> ChallengeProofs { get; set; }
+    public DbSet<Reward> Rewards { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -32,6 +35,43 @@ public class AppDbContext : DbContext
             .HasOne(c => c.Profile)
             .WithMany(p => p.Clients)
             .HasForeignKey(c => c.ProfileId)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<Challenge>()
+            .HasOne(c => c.ParentProfile)
+            .WithMany()
+            .HasForeignKey(c => c.ParentProfileId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Challenge>()
+            .HasOne(c => c.ChildProfile)
+            .WithMany()
+            .HasForeignKey(c => c.ChildProfileId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ChallengeProof>()
+            .HasOne(p => p.Challenge)
+            .WithMany(c => c.Proofs)
+            .HasForeignKey(p => p.ChallengeId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Reward>()
+            .HasOne(r => r.Challenge)
+            .WithOne(c => c.Reward)
+            .HasForeignKey<Reward>(r => r.ChallengeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Reward>()
+            .HasOne(r => r.ChildProfile)
+            .WithMany()
+            .HasForeignKey(r => r.ChildProfileId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Reward>()
+            .HasOne(r => r.Client)
+            .WithMany()
+            .HasForeignKey(r => r.ClientId)
             .IsRequired(false)
             .OnDelete(DeleteBehavior.SetNull);
     }

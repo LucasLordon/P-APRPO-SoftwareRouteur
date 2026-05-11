@@ -24,4 +24,7 @@ public class FirewallRule
 
     [Column("opnsense_rule_uuid")]
     public string? OpnsenseRuleUuid { get; set; }
+
+    [Column("is_global")]
+    public bool IsGlobal { get; set; } = false;
 }
