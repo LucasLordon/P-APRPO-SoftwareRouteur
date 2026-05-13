@@ -78,6 +78,12 @@
             <i class="bi bi-exclamation-triangle-fill"></i> @TempData["Error"]
         </div>
     }
+    @if (TempData["Warning"] != null)
+    {
+        <div class="sh-alert sh-alert-error" style="background:#fff3cd;color:#856404;border-color:#ffc107">
+            <i class="bi bi-exclamation-circle-fill"></i> @TempData["Warning"]
+        </div>
+    }
     <main>
         @RenderBody()
     </main>
