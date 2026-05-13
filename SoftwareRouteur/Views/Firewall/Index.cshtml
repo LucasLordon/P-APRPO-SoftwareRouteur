@@ -183,6 +183,45 @@
     </div>
 </div>
 
+@if (TempData["ConflictWarning"] != null)
+{
+    var isConflictEdit = TempData["ConflictRuleId"] != null;
+    var conflictFormAction = isConflictEdit ? Url.Action("Edit") : Url.Action("Create");
+    <div class="sh-modal-backdrop show" id="conflictModal" onclick="if(event.target===this) this.classList.remove('show')">
+        <div class="sh-modal">
+            <div class="sh-modal-header">
+                <h3 class="sh-modal-title">@Localizer["Modal_Conflict_Title"]</h3>
+                <button class="sh-modal-close" onclick="document.getElementById('conflictModal').classList.remove('show')">&times;</button>
+            </div>
+            <form method="post" action="@conflictFormAction">
+                @Html.AntiForgeryToken()
+                @if (isConflictEdit)
+                {
+                    <input type="hidden" name="id" value="@TempData["ConflictRuleId"]"/>
+                }
+                <input type="hidden" name="clientId" value="@TempData["ConflictClientId"]"/>
+                <input type="hidden" name="ruleType" value="@TempData["ConflictRuleType"]"/>
+                <input type="hidden" name="destination" value="@TempData["ConflictDestination"]"/>
+                <input type="hidden" name="action" value="@TempData["ConflictAction"]"/>
+                <input type="hidden" name="conflictConfirmed" value="true"/>
+                <div class="sh-modal-body">
+                    <div class="sh-alert sh-alert-error">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        @TempData["ConflictWarning"]
+                    </div>
+                </div>
+                <div class="sh-modal-footer">
+                    <button type="button" class="sh-btn-cancel"
+                            onclick="document.getElementById('conflictModal').classList.remove('show')">@Localizer["Btn_Cancel"]</button>
+                    <button type="submit" class="sh-btn-submit">
+                        <i class="bi bi-plus-lg"></i> @Localizer["Btn_Confirm_Anyway"]
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
 <!-- Edit Modal -->
 <div class="sh-modal-backdrop" id="editModal" onclick="if(event.target===this) this.classList.remove('show')">
     <div class="sh-modal">

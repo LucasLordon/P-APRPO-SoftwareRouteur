@@ -36,9 +36,9 @@ public class FirewallController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(int clientId, string ruleType, string destination, string action)
+    public async Task<IActionResult> Create(int clientId, string ruleType, string destination, string action, bool conflictConfirmed = false)
     {
-        _logger.LogDebug("Create rule — clientId={ClientId}, ruleType={RuleType}, destination={Destination}, action={Action}", clientId, ruleType, destination, action);
+        _logger.LogDebug("Create rule — clientId={ClientId}, ruleType={RuleType}, destination={Destination}, action={Action}, conflictConfirmed={Confirmed}", clientId, ruleType, destination, action, conflictConfirmed);
 
         if (!_context.Clients.Any(c => c.Id == clientId))
         {
@@ -62,6 +62,53 @@ public class FirewallController : Controller
             return RedirectToAction("Index");
         }
 
+        string? profileDenyWarning = null;
+
+        if (!conflictConfirmed)
+        {
+            var clientProfileId = await _context.Clients
+                .AsNoTracking()
+                .Where(c => c.Id == clientId)
+                .Select(c => c.ProfileId)
+                .FirstOrDefaultAsync();
+
+            _logger.LogInformation("Cross-level conflict check: clientId={ClientId}, resolvedProfileId={ProfileId}, destination={Dest}, action={Action}",
+                clientId, clientProfileId, destination, action);
+
+            if (clientProfileId != null)
+            {
+                var destLower = destination.ToLower();
+
+                var profileConflict = await _context.ProfileFirewallRules
+                    .Include(r => r.Profile)
+                    .FirstOrDefaultAsync(r =>
+                        r.ProfileId == clientProfileId.Value &&
+                        r.Destination.ToLower() == destLower &&
+                        r.Action != action);
+
+                _logger.LogInformation("Profile conflict result: found={Found}, conflictAction={ConflictAction}",
+                    profileConflict != null, profileConflict?.Action);
+
+                if (profileConflict != null && action == "allow" && profileConflict.Action == "deny")
+                {
+                    profileDenyWarning = string.Format(_localizer["Warning_ProfileHasDenyRule"].Value,
+                        profileConflict.Profile!.DisplayName, destination);
+                }
+
+                var profileDuplicate = await _context.ProfileFirewallRules
+                    .FirstOrDefaultAsync(r =>
+                        r.ProfileId == clientProfileId.Value &&
+                        r.Destination.ToLower() == destLower &&
+                        r.Action == action);
+
+                if (profileDuplicate != null)
+                {
+                    TempData["Error"] = string.Format(_localizer["Error_ProfileConflictDuplicate"].Value, destination);
+                    return RedirectToAction("Index");
+                }
+            }
+        }
+
         var rule = new FirewallRule
         {
             ClientId = clientId,
@@ -72,7 +119,7 @@ public class FirewallController : Controller
         };
         _context.FirewallRules.Add(rule);
         await _context.SaveChangesAsync();
-        
+
         _logger.LogDebug("Condition OPNsense — action == 'deny' ? {Result} (valeur reçue: '{Action}')", action == "deny", action);
         if (action == "deny")
         {
@@ -89,6 +136,8 @@ public class FirewallController : Controller
             _logger.LogWarning("Appel OPNsense IGNORÉ — action='{Action}' ne correspond pas à 'deny' ou 'allow'", action);
         }
 
+        if (profileDenyWarning != null)
+            TempData["Warning"] = profileDenyWarning;
         TempData["Success"] = _localizer["Success_Created"].Value;
         return RedirectToAction("Index");
     }
@@ -124,7 +173,7 @@ public class FirewallController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Edit(int id, int clientId, string ruleType, string destination, string action)
+    public async Task<IActionResult> Edit(int id, int clientId, string ruleType, string destination, string action, bool conflictConfirmed = false)
     {
         var rule = _context.FirewallRules.Find(id);
         _logger.LogDebug("Edit rule id={Id} — ancien état: action='{OldAction}', clientId={OldClientId}, destination='{OldDestination}'", id, rule?.Action, rule?.ClientId, rule?.Destination);
@@ -145,6 +194,53 @@ public class FirewallController : Controller
                     : string.Format(_localizer["Error_ConflictDuplicate"].Value,
                         destination, conflictRule.Client!.Hostname);
                 return RedirectToAction("Index");
+            }
+
+            string? profileDenyWarning = null;
+
+            if (!conflictConfirmed)
+            {
+                var editClientProfileId = await _context.Clients
+                    .AsNoTracking()
+                    .Where(c => c.Id == clientId)
+                    .Select(c => c.ProfileId)
+                    .FirstOrDefaultAsync();
+
+                _logger.LogInformation("Cross-level conflict check (edit): clientId={ClientId}, resolvedProfileId={ProfileId}, destination={Dest}, action={Action}",
+                    clientId, editClientProfileId, destination, action);
+
+                if (editClientProfileId != null)
+                {
+                    var destLower = destination.ToLower();
+
+                    var profileConflict = await _context.ProfileFirewallRules
+                        .Include(r => r.Profile)
+                        .FirstOrDefaultAsync(r =>
+                            r.ProfileId == editClientProfileId.Value &&
+                            r.Destination.ToLower() == destLower &&
+                            r.Action != action);
+
+                    _logger.LogInformation("Profile conflict result (edit): found={Found}, conflictAction={ConflictAction}",
+                        profileConflict != null, profileConflict?.Action);
+
+                    if (profileConflict != null && action == "allow" && profileConflict.Action == "deny")
+                    {
+                        profileDenyWarning = string.Format(_localizer["Warning_ProfileHasDenyRule"].Value,
+                            profileConflict.Profile!.DisplayName, destination);
+                    }
+
+                    var profileDuplicate = await _context.ProfileFirewallRules
+                        .FirstOrDefaultAsync(r =>
+                            r.ProfileId == editClientProfileId.Value &&
+                            r.Destination.ToLower() == destLower &&
+                            r.Action == action);
+
+                    if (profileDuplicate != null)
+                    {
+                        TempData["Error"] = string.Format(_localizer["Error_ProfileConflictDuplicate"].Value, destination);
+                        return RedirectToAction("Index");
+                    }
+                }
             }
 
             _logger.LogDebug("Condition OPNsense (ancien état) — action == 'deny' ? {Result} (valeur reçue: '{Action}')", rule.Action == "deny", rule.Action);
@@ -186,6 +282,8 @@ public class FirewallController : Controller
                 _logger.LogWarning("Appel OPNsense IGNORÉ (nouvel état) — action='{Action}' ne correspond pas à 'deny' ou 'allow'", action);
             }
 
+            if (profileDenyWarning != null)
+                TempData["Warning"] = profileDenyWarning;
             TempData["Success"] = _localizer["Success_Updated"].Value;
         }
         return RedirectToAction("Index");

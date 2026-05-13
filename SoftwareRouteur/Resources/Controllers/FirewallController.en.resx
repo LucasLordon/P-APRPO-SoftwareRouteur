@@ -11,4 +11,7 @@
   <data name="Error_Connect" xml:space="preserve"><value>Cannot connect to VM2: {0}</value></data>
   <data name="Error_ConflictOpposite" xml:space="preserve"><value>Conflict: a {0} rule already exists for '{1}' on client {2}. Delete it before creating an opposite rule.</value></data>
   <data name="Error_ConflictDuplicate" xml:space="preserve"><value>Duplicate: an identical rule already exists for '{0}' on client {1}.</value></data>
+  <data name="Error_ProfileConflictDuplicate" xml:space="preserve"><value>Duplicate: the profile assigned to this device already has an identical rule for '{0}'.</value></data>
+  <data name="Warning_ProfileConflict" xml:space="preserve"><value>Profile conflict: profile '{0}' has a deny rule for '{1}'. In OPNsense, deny always takes priority; this allow rule will have no effect.</value></data>
+  <data name="Warning_ProfileHasDenyRule" xml:space="preserve"><value>Warning: profile '{0}' has a deny rule for '{1}'. The profile rule (most restrictive) will apply — this allow rule will have no effect as long as the profile rule exists.</value></data>
 </root>

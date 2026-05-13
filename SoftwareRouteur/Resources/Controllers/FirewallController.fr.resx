@@ -11,4 +11,7 @@
   <data name="Error_Connect" xml:space="preserve"><value>Impossible de se connecter à VM2 : {0}</value></data>
   <data name="Error_ConflictOpposite" xml:space="preserve"><value>Conflit : une règle {0} existe déjà pour « {1} » sur le client {2}. Supprimez-la avant d'en créer une opposée.</value></data>
   <data name="Error_ConflictDuplicate" xml:space="preserve"><value>Doublon : une règle identique existe déjà pour « {0} » sur le client {1}.</value></data>
+  <data name="Error_ProfileConflictDuplicate" xml:space="preserve"><value>Doublon : le profil associé à ce device a déjà une règle identique pour « {0} ».</value></data>
+  <data name="Warning_ProfileConflict" xml:space="preserve"><value>Conflit de profil : le profil « {0} » a une règle deny pour « {1} ». Dans OPNsense, la règle deny est toujours prioritaire ; cette règle allow n'aura aucun effet.</value></data>
+  <data name="Warning_ProfileHasDenyRule" xml:space="preserve"><value>Attention : le profil « {0} » a une règle deny pour « {1} ». La règle du profil (la plus restrictive) s'appliquera — cette règle allow n'aura aucun effet tant que la règle du profil existe.</value></data>
 </root>
