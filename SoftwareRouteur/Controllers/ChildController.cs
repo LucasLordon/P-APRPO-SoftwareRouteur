@@ -94,7 +94,7 @@ public class ChildController : Controller
     {
         var profileId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var reward = await _context.Rewards
-            .Include(r => r.Client)
+            .Include(r => r.Challenge)
             .FirstOrDefaultAsync(r => r.Id == rewardId && r.ChildProfileId == profileId);
 
         if (reward == null)
@@ -112,11 +112,10 @@ public class ChildController : Controller
         reward.Status = "active";
         reward.ActivatedAt = DateTime.Now;
         reward.LastUpdatedAt = DateTime.Now;
-
-        if (reward.Client?.OpnsenseRuleUuid != null)
-            await _opnsense.SetDeviceBlockedAsync(reward.Client.OpnsenseRuleUuid, false);
-
         await _context.SaveChangesAsync();
+
+        await RewardOPNsenseHelper.SetProfileDevicesBlockedAsync(
+            _context, _opnsense, _logger, reward, blocked: false);
 
         TempData["Success"] = _localizer["Reward_Success_Activated"].Value;
         return RedirectToAction("Home");
@@ -127,7 +126,7 @@ public class ChildController : Controller
     {
         var profileId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var reward = await _context.Rewards
-            .Include(r => r.Client)
+            .Include(r => r.Challenge)
             .FirstOrDefaultAsync(r => r.Id == rewardId && r.ChildProfileId == profileId);
 
         if (reward == null)
@@ -143,11 +142,10 @@ public class ChildController : Controller
         }
 
         reward.Status = "paused";
-
-        if (reward.Client?.OpnsenseRuleUuid != null)
-            await _opnsense.SetDeviceBlockedAsync(reward.Client.OpnsenseRuleUuid, true);
-
         await _context.SaveChangesAsync();
+
+        await RewardOPNsenseHelper.SetProfileDevicesBlockedAsync(
+            _context, _opnsense, _logger, reward, blocked: true);
 
         TempData["Success"] = _localizer["Reward_Success_Paused"].Value;
         return RedirectToAction("Home");
@@ -158,7 +156,7 @@ public class ChildController : Controller
     {
         var profileId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var reward = await _context.Rewards
-            .Include(r => r.Client)
+            .Include(r => r.Challenge)
             .FirstOrDefaultAsync(r => r.Id == rewardId && r.ChildProfileId == profileId);
 
         if (reward == null)
@@ -175,11 +173,10 @@ public class ChildController : Controller
 
         reward.Status = "active";
         reward.LastUpdatedAt = DateTime.Now;
-
-        if (reward.Client?.OpnsenseRuleUuid != null)
-            await _opnsense.SetDeviceBlockedAsync(reward.Client.OpnsenseRuleUuid, false);
-
         await _context.SaveChangesAsync();
+
+        await RewardOPNsenseHelper.SetProfileDevicesBlockedAsync(
+            _context, _opnsense, _logger, reward, blocked: false);
 
         TempData["Success"] = _localizer["Reward_Success_Resumed"].Value;
         return RedirectToAction("Home");

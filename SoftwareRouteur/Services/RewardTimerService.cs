@@ -33,11 +33,16 @@ public class RewardTimerService : BackgroundService
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
         var activeRewards = await db.Rewards
+            .Include(r => r.Challenge)
             .Where(r => r.Status == "active")
             .ToListAsync();
 
         foreach (var reward in activeRewards)
+        {
             reward.LastUpdatedAt = DateTime.Now;
+            await RewardOPNsenseHelper.SetProfileDevicesBlockedAsync(
+                db, _opnsense, _logger, reward, blocked: false);
+        }
 
         if (activeRewards.Count > 0)
             await db.SaveChangesAsync();
@@ -49,7 +54,7 @@ public class RewardTimerService : BackgroundService
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
         var activeRewards = await db.Rewards
-            .Include(r => r.Client)
+            .Include(r => r.Challenge)
             .Where(r => r.Status == "active")
             .ToListAsync();
 
@@ -59,12 +64,12 @@ public class RewardTimerService : BackgroundService
 
             if (reward.RemainingSeconds <= 0)
             {
+                await RewardOPNsenseHelper.SetProfileDevicesBlockedAsync(
+                    db, _opnsense, _logger, reward, blocked: true);
+
                 reward.RemainingSeconds = 0;
                 reward.Status = "consumed";
-                _logger.LogInformation("Reward {Id} consumed — re-blocking client {ClientId}", reward.Id, reward.ClientId);
-
-                if (reward.Client?.OpnsenseRuleUuid != null)
-                    await _opnsense.SetDeviceBlockedAsync(reward.Client.OpnsenseRuleUuid, true);
+                _logger.LogInformation("Reward {Id} consumed for profile {ProfileId}", reward.Id, reward.ChildProfileId);
             }
             else
             {
