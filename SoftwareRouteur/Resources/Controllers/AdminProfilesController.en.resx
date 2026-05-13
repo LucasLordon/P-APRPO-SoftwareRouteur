@@ -6,7 +6,13 @@
   <data name="Error_ParentPinRequired" xml:space="preserve"><value>A PIN is required for the Parent role.</value></data>
   <data name="Error_PinFormat" xml:space="preserve"><value>The PIN must contain exactly 4 digits.</value></data>
   <data name="Error_PinMismatch" xml:space="preserve"><value>The PIN codes do not match.</value></data>
+  <data name="Error_InvalidProfile" xml:space="preserve"><value>Invalid profile.</value></data>
+  <data name="Error_InvalidClient" xml:space="preserve"><value>Invalid client.</value></data>
+  <data name="Error_ConflictOpposite" xml:space="preserve"><value>A rule exists for "{2}" with action "{0}" which conflicts.</value></data>
+  <data name="Error_ConflictDuplicate" xml:space="preserve"><value>A rule already exists for "{0}" on device "{1}".</value></data>
+  <data name="Warning_AlreadyAssigned" xml:space="preserve"><value>Device "{0}" is already assigned to another profile.</value></data>
   <data name="Success_Created" xml:space="preserve"><value>Profile « {0} » created successfully.</value></data>
   <data name="Success_Updated" xml:space="preserve"><value>Profile « {0} » updated successfully.</value></data>
   <data name="Success_Deleted" xml:space="preserve"><value>Profile « {0} » deleted.</value></data>
+  <data name="Success_DevicesAssigned" xml:space="preserve"><value>Devices assigned successfully.</value></data>
 </root>

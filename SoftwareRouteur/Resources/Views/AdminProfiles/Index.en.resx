@@ -16,8 +16,10 @@
   <data name="Pin_Active" xml:space="preserve"><value>Enabled</value></data>
   <data name="Pin_Inactive" xml:space="preserve"><value>Disabled</value></data>
   <data name="Tooltip_Edit" xml:space="preserve"><value>Edit</value></data>
+  <data name="Tooltip_ManageDevices" xml:space="preserve"><value>Manage devices</value></data>
   <data name="Tooltip_Delete" xml:space="preserve"><value>Delete</value></data>
   <data name="Confirm_Delete" xml:space="preserve"><value>Delete this profile? Associated devices will be detached.</value></data>
+  <data name="Modal_Devices_Title" xml:space="preserve"><value>Assign devices to</value></data>
   <data name="Empty" xml:space="preserve"><value>No profiles created. Click "Add a profile" to get started.</value></data>
   <data name="Modal_Add_Title" xml:space="preserve"><value>New profile</value></data>
   <data name="Field_Name" xml:space="preserve"><value>Name</value></data>

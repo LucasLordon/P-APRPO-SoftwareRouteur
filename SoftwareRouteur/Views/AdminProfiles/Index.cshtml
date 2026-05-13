@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = Localizer["Page_Title"].Value;
     var clientCounts = (ViewBag.ClientCounts as Dictionary<int, int>) ?? new Dictionary<int, int>();
+    var allClients = (ViewBag.AllClients as List<SoftwareRouteur.Models.Client>) ?? new List<SoftwareRouteur.Models.Client>();
 }
 
 <div class="sh-page-header">
@@ -53,6 +54,16 @@
                     </td>
                     <td>@deviceCount</td>
                     <td class="sh-col-actions">
+                        @if (profile.Role == "child")
+                        {
+                            <button type="button" class="sh-action-btn"
+                                    data-profile-id="@profile.Id"
+                                    data-profile-name="@profile.DisplayName"
+                                    onclick="openDeviceModal(this)"
+                                    title="@Localizer["Tooltip_ManageDevices"]">
+                                <i class="bi bi-phone"></i>
+                            </button>
+                        }
                         <button type="button" class="sh-action-btn"
                                 data-profile-id="@profile.Id"
                                 data-profile-name="@profile.DisplayName"
@@ -179,8 +190,70 @@
     </div>
 </div>
 
+<!-- Device Assignment Modal -->
+<div class="sh-modal-backdrop" id="deviceModal" onclick="if(event.target===this) this.classList.remove('show')">
+    <div class="sh-modal">
+        <div class="sh-modal-header">
+            <h3 class="sh-modal-title">@Localizer["Modal_Devices_Title"] <span id="deviceModalProfileName"></span></h3>
+            <button class="sh-modal-close" onclick="document.getElementById('deviceModal').classList.remove('show')">&times;</button>
+        </div>
+        <form method="post" id="deviceForm" action="">
+            @Html.AntiForgeryToken()
+            <div class="sh-modal-body">
+                <div id="deviceChecklist">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+            <div class="sh-modal-footer">
+                <button type="button" class="sh-btn-cancel"
+                        onclick="document.getElementById('deviceModal').classList.remove('show')">@Localizer["Btn_Cancel"]</button>
+                <button type="submit" class="sh-btn-submit">
+                    <i class="bi bi-check-lg"></i> @Localizer["Btn_Save"]
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @section Scripts {
     <script>
+        var allClientsData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+            allClients.Select(c => new { id = c.Id, hostname = c.Hostname, ipAddress = c.IpAddress, profileId = c.ProfileId })
+        ));
+
+        function openDeviceModal(btn) {
+            var profileId = parseInt(btn.dataset.profileId);
+            var profileName = btn.dataset.profileName;
+
+            document.getElementById('deviceModalProfileName').textContent = profileName;
+            document.getElementById('deviceForm').action = '/admin/profiles/devices/' + profileId;
+
+            var checklist = document.getElementById('deviceChecklist');
+            checklist.innerHTML = '';
+
+            allClientsData.forEach(function(client) {
+                var div = document.createElement('div');
+                div.className = 'sh-form-check';
+
+                var input = document.createElement('input');
+                input.type = 'checkbox';
+                input.name = 'selectedClientIds';
+                input.value = client.id;
+                input.id = 'client_' + client.id;
+                input.checked = client.profileId === profileId;
+
+                var label = document.createElement('label');
+                label.htmlFor = 'client_' + client.id;
+                label.textContent = client.hostname + ' (' + client.ipAddress + ')';
+
+                div.appendChild(input);
+                div.appendChild(label);
+                checklist.appendChild(div);
+            });
+
+            document.getElementById('deviceModal').classList.add('show');
+        }
+
         function updateAddPinRequired() {
             var role = document.getElementById('addRoleSelect').value;
             document.getElementById('addPinInput').required = (role === 'parent');

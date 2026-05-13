@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using SoftwareRouteur.Data;
 using SoftwareRouteur.Models;
+using SoftwareRouteur.Services;
 using SoftwareRouteur.ViewModels;
 
 namespace SoftwareRouteur.Controllers;
@@ -17,11 +18,13 @@ public class AdminProfilesController : Controller
 
     private readonly AppDbContext _context;
     private readonly IStringLocalizer<AdminProfilesController> _localizer;
+    private readonly OPNsenseService _opnsense;
 
-    public AdminProfilesController(AppDbContext context, IStringLocalizer<AdminProfilesController> localizer)
+    public AdminProfilesController(AppDbContext context, IStringLocalizer<AdminProfilesController> localizer, OPNsenseService opnsense)
     {
         _context = context;
         _localizer = localizer;
+        _opnsense = opnsense;
     }
 
     [HttpGet("")]
@@ -39,10 +42,12 @@ public class AdminProfilesController : Controller
             .ToDictionary(g => g.Key!.Value, g => g.Count());
 
         ViewBag.ClientCounts = clientCounts;
+        ViewBag.AllClients = _context.Clients.OrderBy(c => c.Hostname).ToList();
         return View(profiles);
     }
 
     [HttpPost("create")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(ProfileCreateViewModel vm)
     {
         if (string.IsNullOrWhiteSpace(vm.DisplayName) || string.IsNullOrWhiteSpace(vm.Role))
@@ -88,6 +93,7 @@ public class AdminProfilesController : Controller
     }
 
     [HttpPost("edit/{id}")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, ProfileEditViewModel vm)
     {
         var profile = _context.Profiles.Find(id);
@@ -127,12 +133,26 @@ public class AdminProfilesController : Controller
     }
 
     [HttpPost("delete/{id}")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
         var profile = _context.Profiles.Find(id);
         if (profile == null)
             return RedirectToAction("Index");
-
+        
+        if (profile.Role == "child" &&
+            (!string.IsNullOrEmpty(profile.OpnsenseBlockAliasUuid) ||
+             !string.IsNullOrEmpty(profile.OpnsenseAllowAliasUuid)))
+        {
+            await _opnsense.DeleteProfileAliasesAndRulesAsync(
+                profile.Id,
+                profile.OpnsenseBlockAliasUuid,
+                profile.OpnsenseAllowAliasUuid,
+                profile.OpnsenseSrcAliasUuid,
+                profile.OpnsenseBlockRuleUuid,
+                profile.OpnsenseAllowRuleUuid);
+        }
+        
         var assignedClients = _context.Clients.Where(c => c.ProfileId == id).ToList();
         foreach (var client in assignedClients)
             client.ProfileId = null;
@@ -141,6 +161,68 @@ public class AdminProfilesController : Controller
         await _context.SaveChangesAsync();
 
         TempData["Success"] = string.Format(_localizer["Success_Deleted"].Value, profile.DisplayName);
+        return RedirectToAction("Index");
+    }
+
+    [HttpPost("devices/{profileId}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AssignDevices(int profileId, [FromForm] List<int> selectedClientIds)
+    {
+        var profile = _context.Profiles.Find(profileId);
+        if (profile == null || profile.Role != "child")
+        {
+            TempData["Error"] = _localizer["Error_InvalidProfile"].Value;
+            return RedirectToAction("Index");
+        }
+        
+        var currentlyAssigned = _context.Clients.Where(c => c.ProfileId == profileId).ToList();
+        var currentIds = currentlyAssigned.Select(c => c.Id).ToHashSet();
+        var newIds = selectedClientIds == null ? new HashSet<int>() : new HashSet<int>(selectedClientIds);
+        
+        var toRemove = currentlyAssigned.Where(c => !newIds.Contains(c.Id)).ToList();
+        
+        var toAdd = _context.Clients.Where(c => newIds.Contains(c.Id) && !currentIds.Contains(c.Id)).ToList();
+        
+        foreach (var client in toRemove)
+        {
+            if (!string.IsNullOrEmpty(profile.OpnsenseSrcAliasUuid))
+            {
+                await _opnsense.RemoveDeviceFromProfileRulesAsync(profile.OpnsenseSrcAliasUuid, client.IpAddress);
+            }
+            client.ProfileId = null;
+        }
+        
+        foreach (var client in toAdd)
+        {
+            if (client.ProfileId != null && client.ProfileId != profileId)
+            {
+                TempData["Warning"] = string.Format(_localizer["Warning_AlreadyAssigned"].Value, client.Hostname);
+                continue;
+            }
+            
+            if (string.IsNullOrEmpty(profile.OpnsenseSrcAliasUuid))
+            {
+                var (srcUuid, blockUuid, allowUuid, blockRuleUuid, allowRuleUuid) =
+                    await _opnsense.CreateProfileAliasesAndRulesAsync(profile.Id, profile.DisplayName);
+
+                profile.OpnsenseSrcAliasUuid = srcUuid;
+                profile.OpnsenseBlockAliasUuid = blockUuid;
+                profile.OpnsenseAllowAliasUuid = allowUuid;
+                profile.OpnsenseBlockRuleUuid = blockRuleUuid;
+                profile.OpnsenseAllowRuleUuid = allowRuleUuid;
+            }
+            
+            if (!string.IsNullOrEmpty(profile.OpnsenseSrcAliasUuid))
+            {
+                await _opnsense.AddDeviceToProfileRulesAsync(profile.OpnsenseSrcAliasUuid, client.IpAddress);
+            }
+
+            client.ProfileId = profileId;
+        }
+
+        await _context.SaveChangesAsync();
+
+        TempData["Success"] = _localizer["Success_DevicesAssigned"].Value;
         return RedirectToAction("Index");
     }
 }

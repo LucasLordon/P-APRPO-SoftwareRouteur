@@ -6,7 +6,13 @@
   <data name="Error_ParentPinRequired" xml:space="preserve"><value>Le code PIN est obligatoire pour le rôle Parent.</value></data>
   <data name="Error_PinFormat" xml:space="preserve"><value>Le code PIN doit contenir exactement 4 chiffres.</value></data>
   <data name="Error_PinMismatch" xml:space="preserve"><value>Les codes PIN ne correspondent pas.</value></data>
+  <data name="Error_InvalidProfile" xml:space="preserve"><value>Profil invalide.</value></data>
+  <data name="Error_InvalidClient" xml:space="preserve"><value>Client invalide.</value></data>
+  <data name="Error_ConflictOpposite" xml:space="preserve"><value>Une règle existe pour « {2} » avec l'action « {0} » qui crée un conflit.</value></data>
+  <data name="Error_ConflictDuplicate" xml:space="preserve"><value>Une règle existe déjà pour « {0} » sur l'appareil « {1} ».</value></data>
+  <data name="Warning_AlreadyAssigned" xml:space="preserve"><value>L'appareil « {0} » est déjà assigné à un autre profil.</value></data>
   <data name="Success_Created" xml:space="preserve"><value>Profil « {0} » créé avec succès.</value></data>
   <data name="Success_Updated" xml:space="preserve"><value>Profil « {0} » modifié avec succès.</value></data>
   <data name="Success_Deleted" xml:space="preserve"><value>Profil « {0} » supprimé.</value></data>
+  <data name="Success_DevicesAssigned" xml:space="preserve"><value>Appareils assignés avec succès.</value></data>
 </root>

@@ -6,7 +6,13 @@
   <data name="Error_ParentPinRequired" xml:space="preserve"><value>Für die Rolle "Elternteil" ist eine PIN erforderlich.</value></data>
   <data name="Error_PinFormat" xml:space="preserve"><value>Die PIN muss genau 4 Ziffern enthalten.</value></data>
   <data name="Error_PinMismatch" xml:space="preserve"><value>Die PINs stimmen nicht überein.</value></data>
+  <data name="Error_InvalidProfile" xml:space="preserve"><value>Ungültiges Profil.</value></data>
+  <data name="Error_InvalidClient" xml:space="preserve"><value>Ungültiger Client.</value></data>
+  <data name="Error_ConflictOpposite" xml:space="preserve"><value>Eine Regel existiert für « {2} » mit Aktion « {0} » die in Konflikt steht.</value></data>
+  <data name="Error_ConflictDuplicate" xml:space="preserve"><value>Eine Regel existiert bereits für « {0} » auf Gerät « {1} ».</value></data>
+  <data name="Warning_AlreadyAssigned" xml:space="preserve"><value>Gerät « {0} » ist bereits einem anderen Profil zugewiesen.</value></data>
   <data name="Success_Created" xml:space="preserve"><value>Profil « {0} » erfolgreich erstellt.</value></data>
   <data name="Success_Updated" xml:space="preserve"><value>Profil « {0} » erfolgreich aktualisiert.</value></data>
   <data name="Success_Deleted" xml:space="preserve"><value>Profil « {0} » gelöscht.</value></data>
+  <data name="Success_DevicesAssigned" xml:space="preserve"><value>Geräte erfolgreich zugewiesen.</value></data>
 </root>
