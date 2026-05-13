@@ -2,6 +2,15 @@
 <root>
   <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
   <resheader name="version"><value>2.0</value></resheader>
-  <data name="Page_Title" xml:space="preserve"><value>Profiles</value></data>
-  <data name="Coming_Soon" xml:space="preserve"><value>Coming soon.</value></data>
+  <data name="Page_Title" xml:space="preserve"><value>Child Profiles</value></data>
+  <data name="Page_Subtitle" xml:space="preserve"><value>Manage device assignments to your child profiles</value></data>
+  <data name="Table_Title" xml:space="preserve"><value>{0} profile(s)</value></data>
+  <data name="Col_Profile" xml:space="preserve"><value>Profile</value></data>
+  <data name="Col_Devices" xml:space="preserve"><value>Devices</value></data>
+  <data name="Col_Actions" xml:space="preserve"><value>Actions</value></data>
+  <data name="Tooltip_ManageDevices" xml:space="preserve"><value>Manage devices</value></data>
+  <data name="Modal_Devices_Title" xml:space="preserve"><value>Assign devices to</value></data>
+  <data name="Btn_Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Btn_Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Empty" xml:space="preserve"><value>No child profiles found.</value></data>
 </root>

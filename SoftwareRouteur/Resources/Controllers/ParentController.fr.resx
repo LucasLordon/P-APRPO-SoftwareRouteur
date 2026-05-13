@@ -13,4 +13,17 @@
   <data name="Challenge_Success_Deleted" xml:space="preserve"><value>Défi supprimé.</value></data>
   <data name="Challenge_Success_Approved" xml:space="preserve"><value>Défi approuvé — récompense accordée.</value></data>
   <data name="Challenge_Success_Rejected" xml:space="preserve"><value>Défi refusé.</value></data>
+  <data name="Error_InvalidProfile" xml:space="preserve"><value>Profil invalide.</value></data>
+  <data name="Error_InvalidClient" xml:space="preserve"><value>Appareil invalide.</value></data>
+  <data name="Error_InvalidRequest" xml:space="preserve"><value>Requête invalide.</value></data>
+  <data name="Error_RuleNotFound" xml:space="preserve"><value>Règle introuvable.</value></data>
+  <data name="Error_Unauthorized" xml:space="preserve"><value>Vous n'êtes pas autorisé à effectuer cette action.</value></data>
+  <data name="Error_FieldsRequired" xml:space="preserve"><value>Tous les champs obligatoires doivent être remplis.</value></data>
+  <data name="Error_ConflictOpposite" xml:space="preserve"><value>Une règle existe pour « {2} » avec l'action « {0} » qui crée un conflit.</value></data>
+  <data name="Error_ConflictDuplicate" xml:space="preserve"><value>Une règle existe déjà pour « {0} » sur {1}.</value></data>
+  <data name="Warning_AlreadyAssigned" xml:space="preserve"><value>L'appareil « {0} » est déjà assigné à un autre profil.</value></data>
+  <data name="Success_Created" xml:space="preserve"><value>Règle créée avec succès.</value></data>
+  <data name="Success_Deleted" xml:space="preserve"><value>Règle supprimée.</value></data>
+  <data name="Success_DevicesAssigned" xml:space="preserve"><value>Appareils assignés avec succès.</value></data>
+  <data name="Warning_DeviceConflictExists" xml:space="preserve"><value>Attention : les appareils suivants ont une règle opposée pour « {0} » : {1}. La règle du profil (la plus restrictive) s'appliquera.</value></data>
 </root>

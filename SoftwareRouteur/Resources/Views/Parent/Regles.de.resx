@@ -2,6 +2,36 @@
 <root>
   <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
   <resheader name="version"><value>2.0</value></resheader>
-  <data name="Page_Title" xml:space="preserve"><value>Regeln &amp; Zeiten</value></data>
-  <data name="Coming_Soon" xml:space="preserve"><value>Demnächst verfügbar.</value></data>
+  <data name="Page_Title" xml:space="preserve"><value>Firewall-Regeln</value></data>
+  <data name="Page_Subtitle" xml:space="preserve"><value>Verwalten Sie Firewall-Regeln für Ihre Profile und Geräte</value></data>
+  <data name="Tab_ProfileRules" xml:space="preserve"><value>Profilregeln</value></data>
+  <data name="Tab_DeviceRules" xml:space="preserve"><value>Geräteregeln</value></data>
+  <data name="Btn_Add" xml:space="preserve"><value>Regel hinzufügen</value></data>
+  <data name="Modal_Add_Title" xml:space="preserve"><value>Firewall-Regel erstellen</value></data>
+  <data name="Field_Target" xml:space="preserve"><value>Anwenden auf</value></data>
+  <data name="Select_Target" xml:space="preserve"><value>Ziel wählen...</value></data>
+  <data name="OptGroup_Profiles" xml:space="preserve"><value>Ganzes Profil</value></data>
+  <data name="OptGroup_Devices" xml:space="preserve"><value>Spezifisches Gerät</value></data>
+  <data name="Field_Type" xml:space="preserve"><value>Regeltyp</value></data>
+  <data name="Select_Type" xml:space="preserve"><value>Typ wählen...</value></data>
+  <data name="Type_Domain" xml:space="preserve"><value>Domäne</value></data>
+  <data name="Type_IP" xml:space="preserve"><value>IP-Adresse</value></data>
+  <data name="Type_CIDR" xml:space="preserve"><value>CIDR-Bereich</value></data>
+  <data name="Field_Destination" xml:space="preserve"><value>Ziel</value></data>
+  <data name="Placeholder_Destination" xml:space="preserve"><value>beispiel.com oder 192.168.1.1</value></data>
+  <data name="Field_Action" xml:space="preserve"><value>Aktion</value></data>
+  <data name="Select_Action" xml:space="preserve"><value>Aktion wählen...</value></data>
+  <data name="Action_Deny" xml:space="preserve"><value>Blockieren</value></data>
+  <data name="Action_Allow" xml:space="preserve"><value>Zulassen</value></data>
+  <data name="Btn_Cancel" xml:space="preserve"><value>Abbrechen</value></data>
+  <data name="Btn_Submit" xml:space="preserve"><value>Erstellen</value></data>
+  <data name="Col_Type" xml:space="preserve"><value>Typ</value></data>
+  <data name="Col_Dest" xml:space="preserve"><value>Ziel</value></data>
+  <data name="Col_Action" xml:space="preserve"><value>Aktion</value></data>
+  <data name="Col_Date" xml:space="preserve"><value>Erstellt</value></data>
+  <data name="Col_Actions" xml:space="preserve"><value>Aktionen</value></data>
+  <data name="Tooltip_Delete" xml:space="preserve"><value>Löschen</value></data>
+  <data name="Confirm_Delete" xml:space="preserve"><value>Sind Sie sicher, dass Sie diese Regel löschen möchten?</value></data>
+  <data name="Empty_ProfileRules" xml:space="preserve"><value>Noch keine Profilregeln erstellt.</value></data>
+  <data name="Empty_DeviceRules" xml:space="preserve"><value>Noch keine Geräteregeln erstellt.</value></data>
 </root>

@@ -1,3 +1,4 @@
+@model ParentReglesViewModel
 @inject IViewLocalizer Localizer
 @{
     ViewData["Title"] = Localizer["Page_Title"].Value;
@@ -7,12 +8,223 @@
 <div class="sh-page-header">
     <div>
         <h1 class="sh-page-title">@Localizer["Page_Title"]</h1>
+        <p class="sh-page-subtitle">@Localizer["Page_Subtitle"]</p>
+    </div>
+    <button class="sh-btn-primary" onclick="document.getElementById('addRuleModal').classList.add('show')">
+        <i class="bi bi-plus-lg"></i> @Localizer["Btn_Add"]
+    </button>
+</div>
+
+<div class="sh-tabs">
+    <button class="sh-tab sh-tab-active" onclick="switchTab('tabProfileRules', this)">
+        @Localizer["Tab_ProfileRules"]
+    </button>
+    <button class="sh-tab" onclick="switchTab('tabDeviceRules', this)">
+        @Localizer["Tab_DeviceRules"]
+    </button>
+</div>
+
+<!-- Profile Rules Tab -->
+<div id="tabProfileRules">
+    @if (Model.ChildProfiles.Any(p => p.ProfileFirewallRules.Any()))
+    {
+        @foreach (var profile in Model.ChildProfiles.Where(p => p.ProfileFirewallRules.Any()))
+        {
+            <div class="sh-card">
+                <div class="sh-card-header">
+                    <h2 class="sh-card-title">@profile.DisplayName</h2>
+                </div>
+                <table class="sh-table">
+                    <thead>
+                    <tr>
+                        <th>@Localizer["Col_Type"]</th>
+                        <th>@Localizer["Col_Dest"]</th>
+                        <th>@Localizer["Col_Action"]</th>
+                        <th>@Localizer["Col_Date"]</th>
+                        <th class="sh-col-actions">@Localizer["Col_Actions"]</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var rule in profile.ProfileFirewallRules.OrderByDescending(r => r.CreatedAt))
+                    {
+                        <tr>
+                            <td><span class="sh-badge sh-badge-type">@rule.RuleType</span></td>
+                            <td class="sh-col-dest">@rule.Destination</td>
+                            <td>
+                                <span class="sh-badge @(rule.Action == "deny" ? "sh-badge-deny" : "sh-badge-allow")">
+                                    @rule.Action
+                                </span>
+                            </td>
+                            <td>@rule.CreatedAt.ToShortDateString()</td>
+                            <td class="sh-col-actions">
+                                <form method="post" action="/parent/regles/profile/delete/@rule.Id" class="sh-form-inline"
+                                      onsubmit="return confirm('@Localizer["Confirm_Delete"]')">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="sh-action-btn sh-delete" title="@Localizer["Tooltip_Delete"]">
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="sh-card">
+            <div class="sh-empty">
+                <i class="bi bi-list"></i>
+                <p>@Localizer["Empty_ProfileRules"]</p>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Device Rules Tab -->
+<div id="tabDeviceRules" style="display:none">
+    @if (Model.AllClients.Any(c => c.FirewallRules.Any()))
+    {
+        @foreach (var client in Model.AllClients.Where(c => c.FirewallRules.Any()))
+        {
+            <div class="sh-card">
+                <div class="sh-card-header">
+                    <h2 class="sh-card-title">@client.Hostname (@client.IpAddress)</h2>
+                </div>
+                <table class="sh-table">
+                    <thead>
+                    <tr>
+                        <th>@Localizer["Col_Type"]</th>
+                        <th>@Localizer["Col_Dest"]</th>
+                        <th>@Localizer["Col_Action"]</th>
+                        <th>@Localizer["Col_Date"]</th>
+                        <th class="sh-col-actions">@Localizer["Col_Actions"]</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var rule in client.FirewallRules.OrderByDescending(r => r.CreatedAt))
+                    {
+                        <tr>
+                            <td><span class="sh-badge sh-badge-type">@rule.RuleType</span></td>
+                            <td class="sh-col-dest">@rule.Destination</td>
+                            <td>
+                                <span class="sh-badge @(rule.Action == "deny" ? "sh-badge-deny" : "sh-badge-allow")">
+                                    @rule.Action
+                                </span>
+                            </td>
+                            <td>@rule.CreatedAt.ToShortDateString()</td>
+                            <td class="sh-col-actions">
+                                <form method="post" action="/parent/regles/device/delete/@rule.Id" class="sh-form-inline"
+                                      onsubmit="return confirm('@Localizer["Confirm_Delete"]')">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="sh-action-btn sh-delete" title="@Localizer["Tooltip_Delete"]">
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="sh-card">
+            <div class="sh-empty">
+                <i class="bi bi-phone"></i>
+                <p>@Localizer["Empty_DeviceRules"]</p>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Add Rule Modal -->
+<div class="sh-modal-backdrop" id="addRuleModal" onclick="if(event.target===this) this.classList.remove('show')">
+    <div class="sh-modal">
+        <div class="sh-modal-header">
+            <h3 class="sh-modal-title">@Localizer["Modal_Add_Title"]</h3>
+            <button class="sh-modal-close" onclick="document.getElementById('addRuleModal').classList.remove('show')">&times;</button>
+        </div>
+        <form method="post" action="/parent/regles/profile/create">
+            @Html.AntiForgeryToken()
+            <div class="sh-modal-body">
+                <div class="sh-form-group">
+                    <label class="sh-form-label">@Localizer["Field_Target"]</label>
+                    <select name="targetType" id="targetType" class="sh-input" required onchange="updateTargetOptions()">
+                        <option value="">@Localizer["Select_Target"]</option>
+                        <optgroup label="@Localizer["OptGroup_Profiles"]">
+                            @foreach (var profile in Model.ChildProfiles)
+                            {
+                                <option value="profile_@profile.Id">@profile.DisplayName</option>
+                            }
+                        </optgroup>
+                        <optgroup label="@Localizer["OptGroup_Devices"]">
+                            @foreach (var client in Model.AllClients)
+                            {
+                                <option value="device_@client.Id">@client.Hostname (@client.IpAddress)</option>
+                            }
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="sh-form-group">
+                    <label class="sh-form-label">@Localizer["Field_Type"]</label>
+                    <select name="ruleType" class="sh-input" required>
+                        <option value="">@Localizer["Select_Type"]</option>
+                        <option value="domain">@Localizer["Type_Domain"]</option>
+                        <option value="ip">@Localizer["Type_IP"]</option>
+                        <option value="cidr">@Localizer["Type_CIDR"]</option>
+                    </select>
+                </div>
+                <div class="sh-form-group">
+                    <label class="sh-form-label">@Localizer["Field_Destination"]</label>
+                    <input type="text" name="destination" class="sh-input"
+                           placeholder="@Localizer["Placeholder_Destination"]" required/>
+                </div>
+                <div class="sh-form-group">
+                    <label class="sh-form-label">@Localizer["Field_Action"]</label>
+                    <select name="action" class="sh-input" required>
+                        <option value="">@Localizer["Select_Action"]</option>
+                        <option value="deny">@Localizer["Action_Deny"]</option>
+                        <option value="allow">@Localizer["Action_Allow"]</option>
+                    </select>
+                </div>
+                <input type="hidden" name="profileId" id="profileId" value=""/>
+                <input type="hidden" name="clientId" id="clientId" value=""/>
+            </div>
+            <div class="sh-modal-footer">
+                <button type="button" class="sh-btn-cancel"
+                        onclick="document.getElementById('addRuleModal').classList.remove('show')">@Localizer["Btn_Cancel"]</button>
+                <button type="submit" class="sh-btn-submit">
+                    <i class="bi bi-plus-lg"></i> @Localizer["Btn_Submit"]
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
-<div class="sh-card">
-    <div class="sh-empty">
-        <i class="bi bi-hourglass"></i>
-        <p>@Localizer["Coming_Soon"]</p>
-    </div>
-</div>
+@section Scripts {
+    <script>
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('[id^="tab"]').forEach(t => t.style.display = 'none');
+            document.querySelectorAll('.sh-tab').forEach(b => b.classList.remove('sh-tab-active'));
+            document.getElementById(tabId).style.display = '';
+            btn.classList.add('sh-tab-active');
+        }
+
+        function updateTargetOptions() {
+            var targetType = document.getElementById('targetType').value;
+            document.getElementById('profileId').value = '';
+            document.getElementById('clientId').value = '';
+
+            if (targetType.startsWith('profile_')) {
+                document.getElementById('profileId').value = targetType.split('_')[1];
+            } else if (targetType.startsWith('device_')) {
+                document.getElementById('clientId').value = targetType.split('_')[1];
+            }
+        }
+    </script>
+}
