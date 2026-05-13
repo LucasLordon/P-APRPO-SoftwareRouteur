@@ -611,6 +611,349 @@ public class OPNsenseService
         }
     }
 
+    // ================================================================
+    // PROFILE-LEVEL ALIASES AND RULES
+    // ================================================================
+    
+    public async Task<(string? srcAliasUuid, string? blockAliasUuid, string? allowAliasUuid, string? blockRuleUuid, string? allowRuleUuid)>
+        CreateProfileAliasesAndRulesAsync(int profileId, string profileName)
+    {
+        _logger.LogDebug("Creating profile-level aliases and rules for profile {ProfileId} ({ProfileName})", 
+            profileId, profileName);
+        
+        var srcAliasName = $"safehome_src_profile_{profileId}";
+        var srcAliasData = new
+        {
+            alias = new
+            {
+                name = srcAliasName,
+                type = "host",
+                description = $"SafeHome Profile {profileName} - Source IPs",
+                content = "",
+                enabled = "1"
+            }
+        };
+
+        var srcAliasResponse = await PostAsync("/api/firewall/alias/addItem", srcAliasData);
+        var srcAliasUuid = srcAliasResponse != null ? ExtractUuid(srcAliasResponse) : null;
+        
+        var blockAliasName = $"safehome_block_profile_{profileId}";
+        var blockAliasData = new
+        {
+            alias = new
+            {
+                name = blockAliasName,
+                type = "host",
+                description = $"SafeHome Profile {profileName} - Blocked destinations",
+                content = "",
+                enabled = "1"
+            }
+        };
+
+        var blockAliasResponse = await PostAsync("/api/firewall/alias/addItem", blockAliasData);
+        var blockAliasUuid = blockAliasResponse != null ? ExtractUuid(blockAliasResponse) : null;
+        
+        var allowAliasName = $"safehome_allow_profile_{profileId}";
+        var allowAliasData = new
+        {
+            alias = new
+            {
+                name = allowAliasName,
+                type = "host",
+                description = $"SafeHome Profile {profileName} - Allowed destinations",
+                content = "",
+                enabled = "1"
+            }
+        };
+
+        var allowAliasResponse = await PostAsync("/api/firewall/alias/addItem", allowAliasData);
+        var allowAliasUuid = allowAliasResponse != null ? ExtractUuid(allowAliasResponse) : null;
+
+        await ReconfigureAliasesAsync();
+        
+        string? blockRuleUuid = null;
+        if (srcAliasUuid != null && blockAliasUuid != null)
+        {
+            var blockRuleData = new
+            {
+                rule = new
+                {
+                    enabled = "1",
+                    action = "block",
+                    quick = "1",
+                    interface_field = "lan",
+                    direction = "in",
+                    ipprotocol = "inet",
+                    protocol = "any",
+                    source_net = srcAliasName,
+                    source_not = "0",
+                    destination_net = blockAliasName,
+                    destination_not = "0",
+                    description = $"SafeHome Profile: {profileName} - Block",
+                    log = "1"
+                }
+            };
+
+            var blockRuleResponse = await PostAsync("/api/firewall/filter/addRule", blockRuleData);
+            blockRuleUuid = blockRuleResponse != null ? ExtractUuid(blockRuleResponse) : null;
+
+            if (blockRuleUuid != null)
+                _logger.LogInformation("Profile block rule created: {ProfileId} (UUID: {Uuid})", profileId, blockRuleUuid);
+        }
+        
+        string? allowRuleUuid = null;
+        if (srcAliasUuid != null && allowAliasUuid != null)
+        {
+            var allowRuleData = new
+            {
+                rule = new
+                {
+                    enabled = "1",
+                    action = "pass",
+                    quick = "1",
+                    interface_field = "lan",
+                    direction = "in",
+                    ipprotocol = "inet",
+                    protocol = "any",
+                    source_net = srcAliasName,
+                    source_not = "0",
+                    destination_net = allowAliasName,
+                    destination_not = "0",
+                    description = $"SafeHome Profile: {profileName} - Pass",
+                    log = "1"
+                }
+            };
+
+            var allowRuleResponse = await PostAsync("/api/firewall/filter/addRule", allowRuleData);
+            allowRuleUuid = allowRuleResponse != null ? ExtractUuid(allowRuleResponse) : null;
+
+            if (allowRuleUuid != null)
+                _logger.LogInformation("Profile allow rule created: {ProfileId} (UUID: {Uuid})", profileId, allowRuleUuid);
+        }
+
+        await ApplyFirewallRulesAsync();
+
+        if (srcAliasUuid != null)
+            _logger.LogInformation("Profile aliases and rules created: {ProfileId}, srcUuid={SrcUuid}, blockUuid={BlockUuid}, allowUuid={AllowUuid}",
+                profileId, srcAliasUuid, blockAliasUuid, allowAliasUuid);
+
+        return (srcAliasUuid, blockAliasUuid, allowAliasUuid, blockRuleUuid, allowRuleUuid);
+    }
+    
+    public async Task<bool> AddDeviceToProfileRulesAsync(string srcAliasUuid, string deviceIp)
+    {
+        _logger.LogDebug("Adding device {Ip} to profile rules (srcAliasUuid={SrcUuid})", deviceIp, srcAliasUuid);
+
+        var entries = await GetAliasContentAsListAsync(srcAliasUuid);
+        if (entries == null) return false;
+
+        if (!entries.Contains(deviceIp))
+            entries.Add(deviceIp);
+
+        var ok = await SetAliasContentAsync(srcAliasUuid, entries);
+        if (ok)
+        {
+            _logger.LogInformation("Device {Ip} added to profile source alias", deviceIp);
+            await ReconfigureAliasesAsync();
+        }
+        return ok;
+    }
+    
+    public async Task<bool> RemoveDeviceFromProfileRulesAsync(string srcAliasUuid, string deviceIp)
+    {
+        _logger.LogDebug("Removing device {Ip} from profile rules (srcAliasUuid={SrcUuid})", deviceIp, srcAliasUuid);
+
+        var entries = await GetAliasContentAsListAsync(srcAliasUuid);
+        if (entries == null) return false;
+
+        var removed = entries.RemoveAll(e =>
+            string.Equals(e.TrimEnd('.'), deviceIp.TrimEnd('.'),
+            StringComparison.OrdinalIgnoreCase)) > 0;
+
+        if (!removed)
+        {
+            _logger.LogWarning("Device {Ip} not found in profile source alias", deviceIp);
+            return false;
+        }
+
+        var ok = await SetAliasContentAsync(srcAliasUuid, entries);
+        if (ok)
+        {
+            _logger.LogInformation("Device {Ip} removed from profile source alias", deviceIp);
+            await ReconfigureAliasesAsync();
+        }
+        return ok;
+    }
+    
+    public async Task<bool> AddToProfileBlocklistAsync(string aliasUuid, string destination)
+    {
+        _logger.LogDebug("Adding {Dest} to profile blocklist (aliasUuid={AliasUuid})", destination, aliasUuid);
+
+        var entries = await GetAliasContentAsListAsync(aliasUuid);
+        if (entries == null) return false;
+
+        if (!entries.Contains(destination))
+            entries.Add(destination);
+
+        var ok = await SetAliasContentAsync(aliasUuid, entries);
+        if (ok)
+        {
+            _logger.LogInformation("Added {Dest} to profile blocklist", destination);
+            await ReconfigureAliasesAsync();
+        }
+        return ok;
+    }
+    
+    public async Task<bool> RemoveFromProfileBlocklistAsync(string aliasUuid, string destination)
+    {
+        _logger.LogDebug("Removing {Dest} from profile blocklist (aliasUuid={AliasUuid})", destination, aliasUuid);
+
+        var entries = await GetAliasContentAsListAsync(aliasUuid);
+        if (entries == null) return false;
+
+        var removed = entries.RemoveAll(e =>
+            string.Equals(e.TrimEnd('.'), destination.TrimEnd('.'),
+            StringComparison.OrdinalIgnoreCase)) > 0;
+
+        if (!removed)
+        {
+            _logger.LogWarning("Destination {Dest} not found in profile blocklist", destination);
+            return false;
+        }
+
+        var ok = await SetAliasContentAsync(aliasUuid, entries);
+        if (ok)
+        {
+            _logger.LogInformation("Removed {Dest} from profile blocklist", destination);
+            await ReconfigureAliasesAsync();
+        }
+        return ok;
+    }
+    
+    public async Task<bool> AddToProfileWhitelistAsync(string aliasUuid, string destination)
+    {
+        _logger.LogDebug("Adding {Dest} to profile whitelist (aliasUuid={AliasUuid})", destination, aliasUuid);
+
+        var entries = await GetAliasContentAsListAsync(aliasUuid);
+        if (entries == null) return false;
+
+        if (!entries.Contains(destination))
+            entries.Add(destination);
+
+        var ok = await SetAliasContentAsync(aliasUuid, entries);
+        if (ok)
+        {
+            _logger.LogInformation("Added {Dest} to profile whitelist", destination);
+            await ReconfigureAliasesAsync();
+        }
+        return ok;
+    }
+    
+    public async Task<bool> RemoveFromProfileWhitelistAsync(string aliasUuid, string destination)
+    {
+        _logger.LogDebug("Removing {Dest} from profile whitelist (aliasUuid={AliasUuid})", destination, aliasUuid);
+
+        var entries = await GetAliasContentAsListAsync(aliasUuid);
+        if (entries == null) return false;
+
+        var removed = entries.RemoveAll(e =>
+            string.Equals(e.TrimEnd('.'), destination.TrimEnd('.'),
+            StringComparison.OrdinalIgnoreCase)) > 0;
+
+        if (!removed)
+        {
+            _logger.LogWarning("Destination {Dest} not found in profile whitelist", destination);
+            return false;
+        }
+
+        var ok = await SetAliasContentAsync(aliasUuid, entries);
+        if (ok)
+        {
+            _logger.LogInformation("Removed {Dest} from profile whitelist", destination);
+            await ReconfigureAliasesAsync();
+        }
+        return ok;
+    }
+    
+    public async Task<bool> DeleteProfileAliasesAndRulesAsync(int profileId,
+        string? blockAliasUuid, string? allowAliasUuid, string? srcAliasUuid,
+        string? blockRuleUuid, string? allowRuleUuid)
+    {
+        _logger.LogDebug("Deleting profile-level aliases and rules for profile {ProfileId}", profileId);
+
+        var allSuccess = true;
+        
+        if (!string.IsNullOrEmpty(blockRuleUuid))
+        {
+            var ruleDeleted = await DeleteFirewallRuleAsync(blockRuleUuid);
+            if (!ruleDeleted)
+            {
+                _logger.LogWarning("Failed to delete block rule {RuleUuid} for profile {ProfileId}", blockRuleUuid, profileId);
+                allSuccess = false;
+            }
+        }
+
+        if (!string.IsNullOrEmpty(allowRuleUuid))
+        {
+            var ruleDeleted = await DeleteFirewallRuleAsync(allowRuleUuid);
+            if (!ruleDeleted)
+            {
+                _logger.LogWarning("Failed to delete allow rule {RuleUuid} for profile {ProfileId}", allowRuleUuid, profileId);
+                allSuccess = false;
+            }
+        }
+        
+        if (!string.IsNullOrEmpty(blockAliasUuid))
+        {
+            var response = await PostAsync($"/api/firewall/alias/delItem/{blockAliasUuid}", new { });
+            if (response != null)
+            {
+                _logger.LogInformation("Block alias deleted for profile {ProfileId}", profileId);
+            }
+            else
+            {
+                _logger.LogWarning("Failed to delete block alias for profile {ProfileId}", profileId);
+                allSuccess = false;
+            }
+        }
+
+        if (!string.IsNullOrEmpty(allowAliasUuid))
+        {
+            var response = await PostAsync($"/api/firewall/alias/delItem/{allowAliasUuid}", new { });
+            if (response != null)
+            {
+                _logger.LogInformation("Allow alias deleted for profile {ProfileId}", profileId);
+            }
+            else
+            {
+                _logger.LogWarning("Failed to delete allow alias for profile {ProfileId}", profileId);
+                allSuccess = false;
+            }
+        }
+
+        if (!string.IsNullOrEmpty(srcAliasUuid))
+        {
+            var response = await PostAsync($"/api/firewall/alias/delItem/{srcAliasUuid}", new { });
+            if (response != null)
+            {
+                _logger.LogInformation("Source alias deleted for profile {ProfileId}", profileId);
+            }
+            else
+            {
+                _logger.LogWarning("Failed to delete source alias for profile {ProfileId}", profileId);
+                allSuccess = false;
+            }
+        }
+
+        if (allSuccess)
+        {
+            await ReconfigureAliasesAsync();
+            await ApplyFirewallRulesAsync();
+        }
+
+        return allSuccess;
+    }
+
     private async Task<string?> GetAsync(string endpoint)
     {
         try

@@ -12,6 +12,7 @@ public class AppDbContext : DbContext
 
     public DbSet<Client> Clients { get; set; }
     public DbSet<FirewallRule> FirewallRules { get; set; }
+    public DbSet<ProfileFirewallRule> ProfileFirewallRules { get; set; }
     public DbSet<AdminUser> AdminUsers { get; set; }
     public DbSet<Monitoring> Monitorings { get; set; }
     public DbSet<BlockedTraffic> BlockedTraffics { get; set; }
@@ -74,5 +75,11 @@ public class AppDbContext : DbContext
             .HasForeignKey(r => r.ClientId)
             .IsRequired(false)
             .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<ProfileFirewallRule>()
+            .HasOne(pfr => pfr.Profile)
+            .WithMany(p => p.ProfileFirewallRules)
+            .HasForeignKey(pfr => pfr.ProfileId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
