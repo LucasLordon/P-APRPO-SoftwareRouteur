@@ -26,4 +26,21 @@
   <data name="Success_Deleted" xml:space="preserve"><value>Règle supprimée.</value></data>
   <data name="Success_DevicesAssigned" xml:space="preserve"><value>Appareils assignés avec succès.</value></data>
   <data name="Warning_DeviceConflictExists" xml:space="preserve"><value>Attention : les appareils suivants ont une règle opposée pour « {0} » : {1}. La règle du profil (la plus restrictive) s'appliquera.</value></data>
+  <data name="Schedule_Error_NotFound" xml:space="preserve"><value>Plage horaire introuvable.</value></data>
+  <data name="Schedule_Error_Unauthorized" xml:space="preserve"><value>Vous n'êtes pas autorisé à modifier cette plage horaire.</value></data>
+  <data name="Schedule_Error_TimeRange" xml:space="preserve"><value>L'heure de début doit être inférieure à l'heure de fin.</value></data>
+  <data name="Schedule_Error_Days" xml:space="preserve"><value>Veuillez sélectionner au moins un jour.</value></data>
+  <data name="Schedule_Success_Created" xml:space="preserve"><value>Plage horaire créée avec succès.</value></data>
+  <data name="Schedule_Success_Deleted" xml:space="preserve"><value>Plage horaire supprimée.</value></data>
+  <data name="TempAuth_Error_NotFound" xml:space="preserve"><value>Autorisation temporaire introuvable.</value></data>
+  <data name="TempAuth_Error_Unauthorized" xml:space="preserve"><value>Vous n'êtes pas autorisé à révoquer cette autorisation.</value></data>
+  <data name="TempAuth_Error_InvalidProfile" xml:space="preserve"><value>Profil enfant invalide.</value></data>
+  <data name="TempAuth_Error_InvalidDuration" xml:space="preserve"><value>La durée doit être comprise entre 1 et 1440 minutes.</value></data>
+  <data name="TempAuth_Success_Created" xml:space="preserve"><value>Accès temporaire accordé.</value></data>
+  <data name="TempAuth_Success_Deleted" xml:space="preserve"><value>Autorisation révoquée.</value></data>
+  <data name="Schedule_Error_InvalidBlockType" xml:space="preserve"><value>Type de blocage invalide.</value></data>
+  <data name="Schedule_Error_InvalidDestination" xml:space="preserve"><value>Destination invalide pour le type sélectionné.</value></data>
+  <data name="Schedule_Success_Updated" xml:space="preserve"><value>Plage horaire modifiée avec succès.</value></data>
+  <data name="TempAuth_Error_InvalidAllowType" xml:space="preserve"><value>Type d'autorisation invalide.</value></data>
+  <data name="TempAuth_Error_InvalidAllowDestination" xml:space="preserve"><value>Destination invalide pour le type sélectionné.</value></data>
 </root>

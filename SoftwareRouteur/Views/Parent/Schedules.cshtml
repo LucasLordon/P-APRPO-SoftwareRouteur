@@ -1,0 +1,679 @@
+@model ParentSchedulesViewModel
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["Page_Title"].Value;
+    Layout = "_LayoutParent";
+}
+
+<div class="sh-page-header">
+    <div>
+        <h1 class="sh-page-title">@Localizer["Page_Title"]</h1>
+        <p class="sh-page-subtitle">@Localizer["Page_Subtitle"]</p>
+    </div>
+</div>
+
+<div class="sh-tabs">
+    <button class="sh-tab sh-tab-active" onclick="switchTab('tabSchedules', this)">
+        <i class="bi bi-clock"></i> @Localizer["Tab_Schedules"]
+    </button>
+    <button class="sh-tab" onclick="switchTab('tabTempAuths', this)">
+        <i class="bi bi-unlock"></i> @Localizer["Tab_TempAuths"]
+    </button>
+</div>
+
+<!-- ── Plages horaires ─────────────────────────── -->
+<div id="tabSchedules">
+    <div class="sh-card">
+        <div class="sh-card-header">
+            <h2 class="sh-card-title">@Localizer["Tab_Schedules"]</h2>
+            <button class="sh-btn-primary" onclick="document.getElementById('addScheduleModal').classList.add('show')">
+                <i class="bi bi-plus-lg"></i> @Localizer["Btn_AddSchedule"]
+            </button>
+        </div>
+
+        @if (Model.Schedules.Any())
+        {
+            <table class="sh-table">
+                <thead>
+                <tr>
+                    <th>@Localizer["Col_Target"]</th>
+                    <th>@Localizer["Col_Days"]</th>
+                    <th>@Localizer["Col_Time"]</th>
+                    <th>@Localizer["Col_Type"]</th>
+                    <th>@Localizer["Col_Scope"]</th>
+                    <th class="sh-col-actions">@Localizer["Col_Actions"]</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var s in Model.Schedules)
+                {
+                    var editTargetVal = s.ClientId.HasValue
+                        ? $"device_{s.ClientId}"
+                        : s.ProfileId.HasValue
+                            ? $"profile_{s.ProfileId}"
+                            : "global";
+                    <tr>
+                        <td>
+                            @if (s.ProfileId == null)
+                            {
+                                <span class="sh-badge sh-badge-type">@Localizer["Label_Global"]</span>
+                            }
+                            else
+                            {
+                                <span>@s.Profile?.DisplayName</span>
+                                @if (s.Client != null)
+                                {
+                                    <span class="sh-badge sh-badge-type" style="margin-left:.375rem">@s.Client.Hostname</span>
+                                }
+                            }
+                        </td>
+                        <td>
+                            @{
+                                var dayLabels = new[] { "Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di" };
+                                for (var i = 0; i < 7; i++)
+                                {
+                                    if (s.Days.Length > i && s.Days[i] == '1')
+                                    {
+                                        <span class="sh-badge sh-badge-allow" style="margin-right:2px">@dayLabels[i]</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="sh-badge sh-badge-type" style="margin-right:2px;opacity:.4">@dayLabels[i]</span>
+                                    }
+                                }
+                            }
+                        </td>
+                        <td>@s.TimeStart.ToString("HH:mm") – @s.TimeEnd.ToString("HH:mm")</td>
+                        <td>
+                            @if (s.IsBlocking)
+                            {
+                                <span class="sh-badge sh-badge-deny">@Localizer["Badge_Blocking"]</span>
+                            }
+                            else
+                            {
+                                <span class="sh-badge sh-badge-allow">@Localizer["Badge_Allowing"]</span>
+                            }
+                        </td>
+                        <td>
+                            @if (s.BlockDestination != null)
+                            {
+                                <span class="sh-badge sh-badge-type">@s.BlockDestination</span>
+                            }
+                            else
+                            {
+                                <span style="color:var(--sh-gray-400);font-size:.8rem">@Localizer["Label_Global"]</span>
+                            }
+                        </td>
+                        <td class="sh-col-actions">
+                            <button type="button" class="sh-action-btn" title="@Localizer["Tooltip_Edit"]"
+                                    data-schedule-id="@s.Id"
+                                    data-target="@editTargetVal"
+                                    data-time-start="@s.TimeStart.ToString("HH:mm")"
+                                    data-time-end="@s.TimeEnd.ToString("HH:mm")"
+                                    data-days="@s.Days"
+                                    data-is-blocking="@s.IsBlocking.ToString().ToLower()"
+                                    data-block-scope="@(s.BlockDestination != null ? "site" : "all")"
+                                    data-block-dest-type="@(s.BlockDestinationType ?? "domain")"
+                                    data-block-dest="@(s.BlockDestination ?? "")"
+                                    onclick="openScheduleEditModal(this)">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <form method="post" action="/parent/schedules/delete/@s.Id" class="sh-form-inline"
+                                  onsubmit="return confirm('@Localizer["Confirm_Delete"]')">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="sh-action-btn sh-delete" title="@Localizer["Tooltip_Delete"]">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="sh-empty">
+                <i class="bi bi-clock"></i>
+                <p>@Localizer["Empty_Schedules"]</p>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- ── Autorisations temporaires ─────────────────── -->
+<div id="tabTempAuths" style="display:none">
+    <div class="sh-card">
+        <div class="sh-card-header">
+            <h2 class="sh-card-title">@Localizer["Tab_TempAuths"]</h2>
+            <button class="sh-btn-primary" onclick="document.getElementById('addTempAuthModal').classList.add('show')">
+                <i class="bi bi-plus-lg"></i> @Localizer["Btn_AddTempAuth"]
+            </button>
+        </div>
+
+        @if (Model.TempAuthorizations.Any())
+        {
+            <table class="sh-table">
+                <thead>
+                <tr>
+                    <th>@Localizer["Col_Child"]</th>
+                    <th>@Localizer["Col_Devices"]</th>
+                    <th>@Localizer["Col_Scope"]</th>
+                    <th>@Localizer["Col_Duration"]</th>
+                    <th>@Localizer["Col_GrantedAt"]</th>
+                    <th>@Localizer["Col_ExpiresAt"]</th>
+                    <th>@Localizer["Col_Status"]</th>
+                    <th class="sh-col-actions">@Localizer["Col_Actions"]</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var t in Model.TempAuthorizations)
+                {
+                    <tr>
+                        <td>@t.Profile.DisplayName</td>
+                        <td>
+                            @if (t.Client != null)
+                            {
+                                <span>@t.Client.Hostname</span>
+                            }
+                            else
+                            {
+                                <span class="sh-badge sh-badge-type">@Localizer["Label_AllDevices"]</span>
+                            }
+                        </td>
+                        <td>
+                            @if (t.AllowDestination != null)
+                            {
+                                <span class="sh-badge sh-badge-type">@t.AllowDestination</span>
+                            }
+                            else
+                            {
+                                <span style="color:var(--sh-gray-400);font-size:.8rem">@Localizer["Label_FullAccess"]</span>
+                            }
+                        </td>
+                        <td>
+                            @{
+                                var h = t.DurationMinutes / 60;
+                                var m = t.DurationMinutes % 60;
+                                var durStr = h > 0 && m > 0 ? $"{h}h {m}min" : h > 0 ? $"{h}h" : $"{m} min";
+                            }
+                            @durStr
+                        </td>
+                        <td>@t.ActivatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@t.ExpiresAt.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td><span class="sh-badge sh-badge-allow">@Localizer["Badge_Active"]</span></td>
+                        <td class="sh-col-actions">
+                            <form method="post" action="/parent/schedules/tempauth/delete/@t.Id" class="sh-form-inline"
+                                  onsubmit="return confirm('@Localizer["Confirm_Revoke"]')">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="sh-action-btn sh-delete" title="@Localizer["Tooltip_Revoke"]">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="sh-empty">
+                <i class="bi bi-unlock"></i>
+                <p>@Localizer["Empty_TempAuths"]</p>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- ── Modal : Ajouter une plage horaire ─────────── -->
+<div class="sh-modal-backdrop" id="addScheduleModal" onclick="if(event.target===this) this.classList.remove('show')">
+    <div class="sh-modal">
+        <div class="sh-modal-header">
+            <h3 class="sh-modal-title">@Localizer["Modal_Schedule_Title"]</h3>
+            <button class="sh-modal-close" onclick="document.getElementById('addScheduleModal').classList.remove('show')">&times;</button>
+        </div>
+        <form method="post" action="/parent/schedules/create">
+            @Html.AntiForgeryToken()
+            <div class="sh-modal-body">
+                <div class="sh-form-group">
+                    <label class="sh-form-label">@Localizer["Field_Target"]</label>
+                    <select name="scheduleTarget" id="scheduleTarget" class="sh-input" required onchange="updateScheduleTarget()">
+                        <option value="global">@Localizer["Option_Global"]</option>
+                        <optgroup label="@Localizer["OptGroup_Profiles"]">
+                            @foreach (var p in Model.CreateScheduleVm.AvailableProfiles)
+                            {
+                                <option value="profile_@p.Id">@p.DisplayName</option>
+                            }
+                        </optgroup>
+                        @if (Model.CreateScheduleVm.AvailableClients.Any())
+                        {
+                            <optgroup label="@Localizer["OptGroup_Devices"]">
+                                @foreach (var c in Model.CreateScheduleVm.AvailableClients)
+                                {
+                                    <option value="device_@c.Id">@c.Hostname (@c.IpAddress)</option>
+                                }
+                            </optgroup>
+                        }
+                    </select>
+                    <input type="hidden" name="profileId" id="scheduleProfileId" value=""/>
+                    <input type="hidden" name="clientId" id="scheduleClientId" value=""/>
+                </div>
+                <div class="sh-form-group" style="display:flex;gap:1rem">
+                    <div style="flex:1">
+                        <label class="sh-form-label">@Localizer["Field_TimeStart"]</label>
+                        <input type="time" name="timeStart" class="sh-input" required value="08:00"/>
+                    </div>
+                    <div style="flex:1">
+                        <label class="sh-form-label">@Localizer["Field_TimeEnd"]</label>
+                        <input type="time" name="timeEnd" class="sh-input" required value="21:00"/>
+                    </div>
+                </div>
+                <div class="sh-form-group">
+                    <label class="sh-form-label">@Localizer["Field_Days"]</label>
+                    <div class="sh-day-picker" id="dayPicker">
+                        @{
+                            var dayKeys = new[] { "Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di" };
+                        }
+                        @for (var i = 0; i < 7; i++)
+                        {
+                            <label class="sh-day-label" id="dayLabel_@i" onclick="toggleDay(@i)">@dayKeys[i]</label>
+                        }
+                    </div>
+                    <input type="hidden" name="days" id="daysInput" value="0000000"/>
+                </div>
+                <div class="sh-form-group">
+                    <label class="sh-form-label">@Localizer["Field_Type"]</label>
+                    <select name="isBlocking" id="scheduleIsBlocking" class="sh-input" onchange="updateBlockScopeVisibility()">
+                        <option value="true">@Localizer["Option_Blocking"]</option>
+                        <option value="false">@Localizer["Option_Allowing"]</option>
+                    </select>
+                </div>
+                <div class="sh-form-group" id="blockScopeGroup">
+                    <label class="sh-form-label">@Localizer["Field_BlockScope"]</label>
+                    <div style="display:flex;flex-direction:column;gap:.375rem">
+                        <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer">
+                            <input type="radio" name="blockScopeType" value="all" checked
+                                   onchange="updateBlockScope()" style="accent-color:var(--sh-gray-900)"/>
+                            <span style="font-size:.875rem">@Localizer["Option_BlockAll"]</span>
+                        </label>
+                        <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer">
+                            <input type="radio" name="blockScopeType" value="site"
+                                   onchange="updateBlockScope()" style="accent-color:var(--sh-gray-900)"/>
+                            <span style="font-size:.875rem">@Localizer["Option_BlockSite"]</span>
+                        </label>
+                    </div>
+                </div>
+                <div id="blockDestinationFields" style="display:none">
+                    <div class="sh-form-group">
+                        <label class="sh-form-label">@Localizer["Field_BlockType"]</label>
+                        <select name="blockDestinationType" id="blockDestinationType" class="sh-input">
+                            <option value="domain">@Localizer["BlockType_Domain"]</option>
+                            <option value="ip">@Localizer["BlockType_IP"]</option>
+                            <option value="cidr">@Localizer["BlockType_CIDR"]</option>
+                        </select>
+                    </div>
+                    <div class="sh-form-group">
+                        <label class="sh-form-label">@Localizer["Field_BlockDestination"]</label>
+                        <input type="text" name="blockDestination" id="blockDestination" class="sh-input"
+                               placeholder="@Localizer["BlockDest_Placeholder"]"/>
+                    </div>
+                </div>
+            </div>
+            <div class="sh-modal-footer">
+                <button type="button" class="sh-btn-cancel"
+                        onclick="document.getElementById('addScheduleModal').classList.remove('show')">@Localizer["Btn_Cancel"]</button>
+                <button type="submit" class="sh-btn-submit">
+                    <i class="bi bi-plus-lg"></i> @Localizer["Btn_Submit"]
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ── Modal : Modifier une plage horaire ────────── -->
+<div class="sh-modal-backdrop" id="editScheduleModal" onclick="if(event.target===this) this.classList.remove('show')">
+    <div class="sh-modal">
+        <div class="sh-modal-header">
+            <h3 class="sh-modal-title">@Localizer["Modal_Edit_Title"]</h3>
+            <button class="sh-modal-close" onclick="document.getElementById('editScheduleModal').classList.remove('show')">&times;</button>
+        </div>
+        <form method="post" id="editScheduleForm" action="">
+            @Html.AntiForgeryToken()
+            <div class="sh-modal-body">
+                <div class="sh-form-group">
+                    <label class="sh-form-label">@Localizer["Field_Target"]</label>
+                    <select name="scheduleTarget" id="editScheduleTarget" class="sh-input" required onchange="updateEditScheduleTarget()">
+                        <option value="global">@Localizer["Option_Global"]</option>
+                        <optgroup label="@Localizer["OptGroup_Profiles"]">
+                            @foreach (var p in Model.CreateScheduleVm.AvailableProfiles)
+                            {
+                                <option value="profile_@p.Id">@p.DisplayName</option>
+                            }
+                        </optgroup>
+                        @if (Model.CreateScheduleVm.AvailableClients.Any())
+                        {
+                            <optgroup label="@Localizer["OptGroup_Devices"]">
+                                @foreach (var c in Model.CreateScheduleVm.AvailableClients)
+                                {
+                                    <option value="device_@c.Id">@c.Hostname (@c.IpAddress)</option>
+                                }
+                            </optgroup>
+                        }
+                    </select>
+                    <input type="hidden" name="profileId" id="editScheduleProfileId" value=""/>
+                    <input type="hidden" name="clientId" id="editScheduleClientId" value=""/>
+                </div>
+                <div class="sh-form-group" style="display:flex;gap:1rem">
+                    <div style="flex:1">
+                        <label class="sh-form-label">@Localizer["Field_TimeStart"]</label>
+                        <input type="time" name="timeStart" id="editTimeStart" class="sh-input" required/>
+                    </div>
+                    <div style="flex:1">
+                        <label class="sh-form-label">@Localizer["Field_TimeEnd"]</label>
+                        <input type="time" name="timeEnd" id="editTimeEnd" class="sh-input" required/>
+                    </div>
+                </div>
+                <div class="sh-form-group">
+                    <label class="sh-form-label">@Localizer["Field_Days"]</label>
+                    <div class="sh-day-picker" id="editDayPicker">
+                        @{
+                            var editDayKeys = new[] { "Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di" };
+                        }
+                        @for (var i = 0; i < 7; i++)
+                        {
+                            <label class="sh-day-label" id="editDayLabel_@i" onclick="toggleEditDay(@i)">@editDayKeys[i]</label>
+                        }
+                    </div>
+                    <input type="hidden" name="days" id="editDaysInput" value="0000000"/>
+                </div>
+                <div class="sh-form-group">
+                    <label class="sh-form-label">@Localizer["Field_Type"]</label>
+                    <select name="isBlocking" id="editScheduleIsBlocking" class="sh-input" onchange="updateEditBlockScopeVisibility()">
+                        <option value="true">@Localizer["Option_Blocking"]</option>
+                        <option value="false">@Localizer["Option_Allowing"]</option>
+                    </select>
+                </div>
+                <div class="sh-form-group" id="editBlockScopeGroup">
+                    <label class="sh-form-label">@Localizer["Field_BlockScope"]</label>
+                    <div style="display:flex;flex-direction:column;gap:.375rem">
+                        <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer">
+                            <input type="radio" name="blockScopeType" value="all" checked
+                                   onchange="updateEditBlockScope()" style="accent-color:var(--sh-gray-900)"/>
+                            <span style="font-size:.875rem">@Localizer["Option_BlockAll"]</span>
+                        </label>
+                        <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer">
+                            <input type="radio" name="blockScopeType" value="site"
+                                   onchange="updateEditBlockScope()" style="accent-color:var(--sh-gray-900)"/>
+                            <span style="font-size:.875rem">@Localizer["Option_BlockSite"]</span>
+                        </label>
+                    </div>
+                </div>
+                <div id="editBlockDestinationFields" style="display:none">
+                    <div class="sh-form-group">
+                        <label class="sh-form-label">@Localizer["Field_BlockType"]</label>
+                        <select name="blockDestinationType" id="editBlockDestinationType" class="sh-input">
+                            <option value="domain">@Localizer["BlockType_Domain"]</option>
+                            <option value="ip">@Localizer["BlockType_IP"]</option>
+                            <option value="cidr">@Localizer["BlockType_CIDR"]</option>
+                        </select>
+                    </div>
+                    <div class="sh-form-group">
+                        <label class="sh-form-label">@Localizer["Field_BlockDestination"]</label>
+                        <input type="text" name="blockDestination" id="editBlockDestination" class="sh-input"
+                               placeholder="@Localizer["BlockDest_Placeholder"]"/>
+                    </div>
+                </div>
+            </div>
+            <div class="sh-modal-footer">
+                <button type="button" class="sh-btn-cancel"
+                        onclick="document.getElementById('editScheduleModal').classList.remove('show')">@Localizer["Btn_Cancel"]</button>
+                <button type="submit" class="sh-btn-submit">
+                    <i class="bi bi-check-lg"></i> @Localizer["Btn_Save"]
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ── Modal : Autorisation temporaire ───────────── -->
+<div class="sh-modal-backdrop" id="addTempAuthModal" onclick="if(event.target===this) this.classList.remove('show')">
+    <div class="sh-modal">
+        <div class="sh-modal-header">
+            <h3 class="sh-modal-title">@Localizer["Modal_TempAuth_Title"]</h3>
+            <button class="sh-modal-close" onclick="document.getElementById('addTempAuthModal').classList.remove('show')">&times;</button>
+        </div>
+        <form method="post" action="/parent/schedules/tempauth/create">
+            @Html.AntiForgeryToken()
+            <div class="sh-modal-body">
+                <div class="sh-form-group">
+                    <label class="sh-form-label">@Localizer["Field_Child"]</label>
+                    <select name="profileId" id="tempAuthProfileId" class="sh-input" required onchange="filterTempAuthClients()">
+                        <option value="">@Localizer["Select_Child"]</option>
+                        @foreach (var p in Model.CreateTempAuthVm.AvailableProfiles)
+                        {
+                            <option value="@p.Id">@p.DisplayName</option>
+                        }
+                    </select>
+                </div>
+                <div class="sh-form-group">
+                    <label class="sh-form-label">@Localizer["Field_Devices"]</label>
+                    <select name="clientId" id="tempAuthClientId" class="sh-input">
+                        <option value="">@Localizer["Option_AllDevices"]</option>
+                        @foreach (var c in Model.CreateTempAuthVm.AvailableClients)
+                        {
+                            <option value="@c.Id" data-profile="@c.ProfileId">@c.Hostname (@c.IpAddress)</option>
+                        }
+                    </select>
+                </div>
+                <div class="sh-form-group">
+                    <label class="sh-form-label">@Localizer["Field_Duration"]</label>
+                    <div style="display:flex;align-items:center;gap:.75rem">
+                        <input type="number" name="durationMinutes" class="sh-input" min="1" max="1440" value="30" required style="max-width:120px"/>
+                        <span style="font-size:.875rem;color:var(--sh-gray-500)">@Localizer["Label_Minutes"]</span>
+                    </div>
+                    <span class="sh-field-hint"><i>@Localizer["Hint_AutoRevoke"]</i></span>
+                </div>
+                <div class="sh-form-group">
+                    <label class="sh-form-label">@Localizer["Field_AuthScope"]</label>
+                    <div style="display:flex;flex-direction:column;gap:.375rem">
+                        <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer">
+                            <input type="radio" name="authScopeType" value="all" checked
+                                   onchange="updateAuthScope()" style="accent-color:var(--sh-gray-900)"/>
+                            <span style="font-size:.875rem">@Localizer["Option_LiftAll"]</span>
+                        </label>
+                        <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer">
+                            <input type="radio" name="authScopeType" value="site"
+                                   onchange="updateAuthScope()" style="accent-color:var(--sh-gray-900)"/>
+                            <span style="font-size:.875rem">@Localizer["Option_AllowSite"]</span>
+                        </label>
+                    </div>
+                </div>
+                <div id="authDestinationFields" style="display:none">
+                    <div class="sh-form-group">
+                        <label class="sh-form-label">@Localizer["Field_AllowType"]</label>
+                        <select name="allowDestinationType" class="sh-input">
+                            <option value="domain">@Localizer["AllowType_Domain"]</option>
+                            <option value="ip">@Localizer["AllowType_IP"]</option>
+                            <option value="cidr">@Localizer["AllowType_CIDR"]</option>
+                        </select>
+                    </div>
+                    <div class="sh-form-group">
+                        <label class="sh-form-label">@Localizer["Field_AllowDestination"]</label>
+                        <input type="text" name="allowDestination" id="authDestinationInput" class="sh-input"
+                               placeholder="@Localizer["AllowDest_Placeholder"]"/>
+                    </div>
+                </div>
+            </div>
+            <div class="sh-modal-footer">
+                <button type="button" class="sh-btn-cancel"
+                        onclick="document.getElementById('addTempAuthModal').classList.remove('show')">@Localizer["Btn_Cancel"]</button>
+                <button type="submit" class="sh-btn-submit">
+                    <i class="bi bi-unlock"></i> @Localizer["Btn_Grant"]
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <style>
+        .sh-day-picker { display: flex; gap: .375rem; flex-wrap: wrap; }
+        .sh-day-label {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 36px; height: 32px; border-radius: 4px; font-size: .75rem;
+            font-weight: 600; cursor: pointer; user-select: none;
+            background: var(--sh-gray-100); color: var(--sh-gray-600);
+            border: 1px solid var(--sh-gray-200); transition: all .15s;
+        }
+        .sh-day-label.active {
+            background: var(--sh-gray-900); color: #fff; border-color: var(--sh-gray-900);
+        }
+    </style>
+    <script>
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('[id^="tab"]').forEach(t => t.style.display = 'none');
+            document.querySelectorAll('.sh-tab').forEach(b => b.classList.remove('sh-tab-active'));
+            document.getElementById(tabId).style.display = '';
+            btn.classList.add('sh-tab-active');
+        }
+
+        // ── Create schedule day picker ──────────────────
+        var days = [0, 0, 0, 0, 0, 0, 0];
+
+        function toggleDay(index) {
+            days[index] = days[index] === 1 ? 0 : 1;
+            document.getElementById('dayLabel_' + index).classList.toggle('active', days[index] === 1);
+            document.getElementById('daysInput').value = days.join('');
+        }
+
+        function updateScheduleTarget() {
+            var val = document.getElementById('scheduleTarget').value;
+            document.getElementById('scheduleProfileId').value = '';
+            document.getElementById('scheduleClientId').value = '';
+            if (val.startsWith('profile_')) {
+                document.getElementById('scheduleProfileId').value = val.split('_')[1];
+            } else if (val.startsWith('device_')) {
+                document.getElementById('scheduleClientId').value = val.split('_')[1];
+            }
+        }
+
+        function updateBlockScopeVisibility() {
+            var isBlocking = document.getElementById('scheduleIsBlocking').value === 'true';
+            document.getElementById('blockScopeGroup').style.display = isBlocking ? '' : 'none';
+            if (!isBlocking) {
+                document.getElementById('blockDestinationFields').style.display = 'none';
+                document.querySelector('input[name="blockScopeType"][value="all"]').checked = true;
+                document.getElementById('blockDestination').required = false;
+            }
+        }
+
+        function updateBlockScope() {
+            var isSite = document.querySelector('input[name="blockScopeType"]:checked').value === 'site';
+            document.getElementById('blockDestinationFields').style.display = isSite ? '' : 'none';
+            document.getElementById('blockDestination').required = isSite;
+        }
+
+        // ── Edit schedule modal ─────────────────────────
+        var editDays = [0, 0, 0, 0, 0, 0, 0];
+
+        function toggleEditDay(index) {
+            editDays[index] = editDays[index] === 1 ? 0 : 1;
+            document.getElementById('editDayLabel_' + index).classList.toggle('active', editDays[index] === 1);
+            document.getElementById('editDaysInput').value = editDays.join('');
+        }
+
+        function updateEditScheduleTarget() {
+            var val = document.getElementById('editScheduleTarget').value;
+            document.getElementById('editScheduleProfileId').value = '';
+            document.getElementById('editScheduleClientId').value = '';
+            if (val.startsWith('profile_')) {
+                document.getElementById('editScheduleProfileId').value = val.split('_')[1];
+            } else if (val.startsWith('device_')) {
+                document.getElementById('editScheduleClientId').value = val.split('_')[1];
+            }
+        }
+
+        function updateEditBlockScopeVisibility() {
+            var isBlocking = document.getElementById('editScheduleIsBlocking').value === 'true';
+            document.getElementById('editBlockScopeGroup').style.display = isBlocking ? '' : 'none';
+            if (!isBlocking) {
+                document.getElementById('editBlockDestinationFields').style.display = 'none';
+                var allRadio = document.querySelector('#editScheduleModal input[name="blockScopeType"][value="all"]');
+                if (allRadio) allRadio.checked = true;
+                document.getElementById('editBlockDestination').required = false;
+            }
+        }
+
+        function updateEditBlockScope() {
+            var checked = document.querySelector('#editScheduleModal input[name="blockScopeType"]:checked');
+            var isSite = checked && checked.value === 'site';
+            document.getElementById('editBlockDestinationFields').style.display = isSite ? '' : 'none';
+            document.getElementById('editBlockDestination').required = isSite;
+        }
+
+        function openScheduleEditModal(btn) {
+            var id          = btn.dataset.scheduleId;
+            var targetVal   = btn.dataset.target;
+            var timeStart   = btn.dataset.timeStart;
+            var timeEnd     = btn.dataset.timeEnd;
+            var daysStr     = btn.dataset.days;
+            var isBlocking  = btn.dataset.isBlocking === 'true';
+            var blockScope  = btn.dataset.blockScope;
+            var blockType   = btn.dataset.blockDestType;
+            var blockDest   = btn.dataset.blockDest;
+
+            document.getElementById('editScheduleForm').action = '/parent/schedules/edit/' + id;
+
+            // Target select
+            var targetSel = document.getElementById('editScheduleTarget');
+            targetSel.value = targetVal;
+            updateEditScheduleTarget();
+
+            // Times
+            document.getElementById('editTimeStart').value = timeStart;
+            document.getElementById('editTimeEnd').value   = timeEnd;
+
+            // Days bitmask
+            for (var i = 0; i < 7; i++) {
+                editDays[i] = (daysStr && daysStr[i] === '1') ? 1 : 0;
+                document.getElementById('editDayLabel_' + i).classList.toggle('active', editDays[i] === 1);
+            }
+            document.getElementById('editDaysInput').value = editDays.join('');
+
+            // isBlocking
+            document.getElementById('editScheduleIsBlocking').value = isBlocking ? 'true' : 'false';
+            updateEditBlockScopeVisibility();
+
+            // Block scope radio
+            var scopeRadio = document.querySelector('#editScheduleModal input[name="blockScopeType"][value="' + blockScope + '"]');
+            if (scopeRadio) {
+                scopeRadio.checked = true;
+                updateEditBlockScope();
+            }
+
+            // Block destination fields
+            document.getElementById('editBlockDestinationType').value = blockType || 'domain';
+            document.getElementById('editBlockDestination').value     = blockDest || '';
+
+            document.getElementById('editScheduleModal').classList.add('show');
+        }
+
+        // ── TempAuth modal ──────────────────────────────
+        function filterTempAuthClients() {
+            var profileId = document.getElementById('tempAuthProfileId').value;
+            var select = document.getElementById('tempAuthClientId');
+            Array.from(select.options).forEach(function(opt) {
+                if (opt.value === '') return;
+                opt.style.display = (!profileId || opt.dataset.profile === profileId) ? '' : 'none';
+            });
+            select.value = '';
+        }
+
+        function updateAuthScope() {
+            var isSite = document.querySelector('input[name="authScopeType"]:checked').value === 'site';
+            document.getElementById('authDestinationFields').style.display = isSite ? '' : 'none';
+            document.getElementById('authDestinationInput').required = isSite;
+        }
+    </script>
+}

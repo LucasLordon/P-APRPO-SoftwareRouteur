@@ -26,4 +26,21 @@
   <data name="Success_Deleted" xml:space="preserve"><value>Regel gelöscht.</value></data>
   <data name="Success_DevicesAssigned" xml:space="preserve"><value>Geräte erfolgreich zugewiesen.</value></data>
   <data name="Warning_DeviceConflictExists" xml:space="preserve"><value>Warnung: Die folgenden Geräte haben eine gegensätzliche Regel für „{0}": {1}. Die Profilregel (die restriktivste) wird angewendet.</value></data>
+  <data name="Schedule_Error_NotFound" xml:space="preserve"><value>Zeitfenster nicht gefunden.</value></data>
+  <data name="Schedule_Error_Unauthorized" xml:space="preserve"><value>Sie sind nicht berechtigt, dieses Zeitfenster zu ändern.</value></data>
+  <data name="Schedule_Error_TimeRange" xml:space="preserve"><value>Die Startzeit muss vor der Endzeit liegen.</value></data>
+  <data name="Schedule_Error_Days" xml:space="preserve"><value>Bitte mindestens einen Tag auswählen.</value></data>
+  <data name="Schedule_Success_Created" xml:space="preserve"><value>Zeitfenster erfolgreich erstellt.</value></data>
+  <data name="Schedule_Success_Deleted" xml:space="preserve"><value>Zeitfenster gelöscht.</value></data>
+  <data name="TempAuth_Error_NotFound" xml:space="preserve"><value>Temporäre Freigabe nicht gefunden.</value></data>
+  <data name="TempAuth_Error_Unauthorized" xml:space="preserve"><value>Sie sind nicht berechtigt, diese Freigabe zu widerrufen.</value></data>
+  <data name="TempAuth_Error_InvalidProfile" xml:space="preserve"><value>Ungültiges Kinderprofil.</value></data>
+  <data name="TempAuth_Error_InvalidDuration" xml:space="preserve"><value>Die Dauer muss zwischen 1 und 1440 Minuten liegen.</value></data>
+  <data name="TempAuth_Success_Created" xml:space="preserve"><value>Temporärer Zugriff gewährt.</value></data>
+  <data name="TempAuth_Success_Deleted" xml:space="preserve"><value>Freigabe widerrufen.</value></data>
+  <data name="Schedule_Error_InvalidBlockType" xml:space="preserve"><value>Ungültiger Sperrtyp.</value></data>
+  <data name="Schedule_Error_InvalidDestination" xml:space="preserve"><value>Ungültiges Ziel für den gewählten Typ.</value></data>
+  <data name="Schedule_Success_Updated" xml:space="preserve"><value>Zeitfenster erfolgreich aktualisiert.</value></data>
+  <data name="TempAuth_Error_InvalidAllowType" xml:space="preserve"><value>Ungültiger Freigabetyp.</value></data>
+  <data name="TempAuth_Error_InvalidAllowDestination" xml:space="preserve"><value>Ungültiges Ziel für den gewählten Typ.</value></data>
 </root>

@@ -10,4 +10,5 @@
   <data name="Logout" xml:space="preserve"><value>Abmelden</value></data>
   <data name="Footer" xml:space="preserve"><value>© 2026 SafeHome — Software Router TPI</value></data>
   <data name="Nav_Security" xml:space="preserve"><value>Sicherheit</value></data>
+  <data name="Nav_Schedules" xml:space="preserve"><value>Zeitpläne</value></data>
 </root>

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoftwareRouteur.Data;
 
@@ -11,9 +12,11 @@ using SoftwareRouteur.Data;
 namespace SoftwareRouteur.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260513134349_AddSchedulesAndTempAuthorizations")]
+    partial class AddSchedulesAndTempAuthorizations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -469,16 +472,6 @@ namespace SoftwareRouteur.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("BlockDestination")
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("block_destination");
-
-                    b.Property<string>("BlockDestinationType")
-                        .HasMaxLength(10)
-                        .HasColumnType("varchar(10)")
-                        .HasColumnName("block_destination_type");
-
                     b.Property<int?>("ClientId")
                         .HasColumnType("int")
                         .HasColumnName("client_id");
@@ -530,16 +523,6 @@ namespace SoftwareRouteur.Migrations
                     b.Property<DateTime>("ActivatedAt")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("activated_at");
-
-                    b.Property<string>("AllowDestination")
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("allow_destination");
-
-                    b.Property<string>("AllowDestinationType")
-                        .HasMaxLength(10)
-                        .HasColumnType("varchar(10)")
-                        .HasColumnName("allow_destination_type");
 
                     b.Property<int?>("ClientId")
                         .HasColumnType("int")

@@ -58,6 +58,10 @@
            asp-controller="Parent" asp-action="Regles">
             <i class="bi bi-shield-lock"></i> @Localizer["Nav_Rules"]
         </a>
+        <a class="sh-tab @(ViewContext.RouteData.Values["action"]?.ToString() == "Schedules" ? "active" : "")"
+           asp-controller="Parent" asp-action="Schedules">
+            <i class="bi bi-clock"></i> @Localizer["Nav_Schedules"]
+        </a>
         <a class="sh-tab @(ViewContext.RouteData.Values["action"]?.ToString() == "Security" ? "active" : "")"
            asp-controller="Parent" asp-action="Security">
             <i class="bi bi-key"></i> @Localizer["Nav_Security"]
@@ -113,6 +117,11 @@
        asp-controller="Parent" asp-action="Regles">
         <i class="bi bi-shield-lock"></i>
         <span>@Localizer["Nav_Rules"]</span>
+    </a>
+    <a class="sh-bottom-nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Schedules" ? "active" : "")"
+       asp-controller="Parent" asp-action="Schedules">
+        <i class="bi bi-clock"></i>
+        <span>@Localizer["Nav_Schedules"]</span>
     </a>
     <a class="sh-bottom-nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Security" ? "active" : "")"
        asp-controller="Parent" asp-action="Security">

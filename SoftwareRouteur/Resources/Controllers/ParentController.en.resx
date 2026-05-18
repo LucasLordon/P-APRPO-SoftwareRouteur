@@ -26,4 +26,21 @@
   <data name="Success_Deleted" xml:space="preserve"><value>Rule deleted.</value></data>
   <data name="Success_DevicesAssigned" xml:space="preserve"><value>Devices assigned successfully.</value></data>
   <data name="Warning_DeviceConflictExists" xml:space="preserve"><value>Warning: the following devices have an opposing rule for '{0}': {1}. The profile rule (most restrictive) will apply.</value></data>
+  <data name="Schedule_Error_NotFound" xml:space="preserve"><value>Time window not found.</value></data>
+  <data name="Schedule_Error_Unauthorized" xml:space="preserve"><value>You are not authorised to modify this time window.</value></data>
+  <data name="Schedule_Error_TimeRange" xml:space="preserve"><value>Start time must be earlier than end time.</value></data>
+  <data name="Schedule_Error_Days" xml:space="preserve"><value>Please select at least one day.</value></data>
+  <data name="Schedule_Success_Created" xml:space="preserve"><value>Time window created successfully.</value></data>
+  <data name="Schedule_Success_Deleted" xml:space="preserve"><value>Time window deleted.</value></data>
+  <data name="TempAuth_Error_NotFound" xml:space="preserve"><value>Temporary authorization not found.</value></data>
+  <data name="TempAuth_Error_Unauthorized" xml:space="preserve"><value>You are not authorised to revoke this authorization.</value></data>
+  <data name="TempAuth_Error_InvalidProfile" xml:space="preserve"><value>Invalid child profile.</value></data>
+  <data name="TempAuth_Error_InvalidDuration" xml:space="preserve"><value>Duration must be between 1 and 1440 minutes.</value></data>
+  <data name="TempAuth_Success_Created" xml:space="preserve"><value>Temporary access granted.</value></data>
+  <data name="TempAuth_Success_Deleted" xml:space="preserve"><value>Authorization revoked.</value></data>
+  <data name="Schedule_Error_InvalidBlockType" xml:space="preserve"><value>Invalid block type.</value></data>
+  <data name="Schedule_Error_InvalidDestination" xml:space="preserve"><value>Invalid destination for the selected type.</value></data>
+  <data name="Schedule_Success_Updated" xml:space="preserve"><value>Time window updated successfully.</value></data>
+  <data name="TempAuth_Error_InvalidAllowType" xml:space="preserve"><value>Invalid authorization type.</value></data>
+  <data name="TempAuth_Error_InvalidAllowDestination" xml:space="preserve"><value>Invalid destination for the selected type.</value></data>
 </root>

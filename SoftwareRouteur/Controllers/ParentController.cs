@@ -17,18 +17,21 @@ public class ParentController : Controller
 {
     private static readonly Regex PinRegex = new(@"^\d{4}$", RegexOptions.Compiled);
     private static readonly Regex DomainRegex = new(@"^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$", RegexOptions.Compiled);
+    private static readonly Regex CidrRegex = new(@"^(\d{1,3}\.){3}\d{1,3}/\d{1,2}$", RegexOptions.Compiled);
 
     private readonly AppDbContext _context;
     private readonly IStringLocalizer<ParentController> _localizer;
     private readonly IWebHostEnvironment _env;
     private readonly OPNsenseService _opnsense;
+    private readonly SchedulerService _scheduler;
 
-    public ParentController(AppDbContext context, IStringLocalizer<ParentController> localizer, IWebHostEnvironment env, OPNsenseService opnsense)
+    public ParentController(AppDbContext context, IStringLocalizer<ParentController> localizer, IWebHostEnvironment env, OPNsenseService opnsense, SchedulerService scheduler)
     {
         _context = context;
         _localizer = localizer;
         _env = env;
         _opnsense = opnsense;
+        _scheduler = scheduler;
     }
 
     [HttpGet("dashboard")]
@@ -619,6 +622,406 @@ public class ParentController : Controller
 
         TempData["Success"] = _localizer["Success_Deleted"].Value;
         return RedirectToAction("Regles");
+    }
+
+    [HttpGet("schedules")]
+    public IActionResult Schedules()
+    {
+        var parentId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+        var childProfiles = _context.Profiles
+            .Where(p => p.Role == "child")
+            .OrderBy(p => p.DisplayName)
+            .ToList();
+
+        var childIds = childProfiles.Select(p => p.Id).ToList();
+
+        var schedules = _context.Schedules
+            .Include(s => s.Profile)
+            .Include(s => s.Client)
+            .Where(s => s.ProfileId == null || childIds.Contains(s.ProfileId.Value))
+            .OrderBy(s => s.Profile != null ? s.Profile.DisplayName : "")
+            .ThenBy(s => s.TimeStart)
+            .ToList();
+
+        var tempAuths = _context.TempAuthorizations
+            .Include(t => t.Profile)
+            .Include(t => t.Client)
+            .Where(t => childIds.Contains(t.ProfileId) && t.ExpiresAt > DateTime.Now)
+            .OrderBy(t => t.ExpiresAt)
+            .ToList();
+
+        var allClients = _context.Clients
+            .Where(c => c.ProfileId != null && childIds.Contains(c.ProfileId.Value))
+            .OrderBy(c => c.Hostname)
+            .ToList();
+
+        var vm = new ParentSchedulesViewModel
+        {
+            Schedules = schedules,
+            TempAuthorizations = tempAuths,
+            CreateScheduleVm = new ScheduleCreateViewModel
+            {
+                AvailableProfiles = childProfiles,
+                AvailableClients = allClients
+            },
+            CreateTempAuthVm = new TempAuthCreateViewModel
+            {
+                AvailableProfiles = childProfiles,
+                AvailableClients = allClients
+            }
+        };
+
+        return View(vm);
+    }
+
+    [HttpPost("schedules/create")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ScheduleCreate(int? profileId, int? clientId, string timeStart, string timeEnd, string days, bool isBlocking = true, string? blockDestination = null, string? blockDestinationType = null)
+    {
+        if (!TimeOnly.TryParse(timeStart, out var start) || !TimeOnly.TryParse(timeEnd, out var end))
+        {
+            TempData["Error"] = _localizer["Schedule_Error_TimeRange"].Value;
+            return RedirectToAction("Schedules");
+        }
+
+        if (start >= end)
+        {
+            TempData["Error"] = _localizer["Schedule_Error_TimeRange"].Value;
+            return RedirectToAction("Schedules");
+        }
+
+        if (string.IsNullOrWhiteSpace(days) || days.Length != 7 || !days.All(c => c == '0' || c == '1') || !days.Contains('1'))
+        {
+            TempData["Error"] = _localizer["Schedule_Error_Days"].Value;
+            return RedirectToAction("Schedules");
+        }
+
+        if (profileId.HasValue && profileId > 0)
+        {
+            if (!_context.Profiles.Any(p => p.Id == profileId && p.Role == "child"))
+            {
+                TempData["Error"] = _localizer["Error_InvalidProfile"].Value;
+                return RedirectToAction("Schedules");
+            }
+        }
+
+        if (clientId.HasValue && clientId > 0)
+        {
+            var client = _context.Clients.FirstOrDefault(c => c.Id == clientId);
+            if (client == null || client.ProfileId == null ||
+                !_context.Profiles.Any(p => p.Id == client.ProfileId && p.Role == "child"))
+            {
+                TempData["Error"] = _localizer["Error_InvalidClient"].Value;
+                return RedirectToAction("Schedules");
+            }
+        }
+
+        string? validatedDestination = null;
+        string? validatedDestinationType = null;
+        if (isBlocking && !string.IsNullOrWhiteSpace(blockDestination))
+        {
+            var destType = blockDestinationType?.Trim().ToLower();
+            if (destType != "domain" && destType != "ip" && destType != "cidr")
+            {
+                TempData["Error"] = _localizer["Schedule_Error_InvalidBlockType"].Value;
+                return RedirectToAction("Schedules");
+            }
+
+            var dest = blockDestination.Trim().ToLower();
+            var valid = destType switch
+            {
+                "domain" => DomainRegex.IsMatch(dest),
+                "ip"     => System.Net.IPAddress.TryParse(dest, out _),
+                "cidr"   => CidrRegex.IsMatch(dest),
+                _        => false
+            };
+
+            if (!valid)
+            {
+                TempData["Error"] = _localizer["Schedule_Error_InvalidDestination"].Value;
+                return RedirectToAction("Schedules");
+            }
+
+            validatedDestination = dest;
+            validatedDestinationType = destType;
+        }
+
+        var schedule = new Schedule
+        {
+            ProfileId = profileId > 0 ? profileId : null,
+            ClientId = clientId > 0 ? clientId : null,
+            TimeStart = start,
+            TimeEnd = end,
+            Days = days,
+            IsBlocking = isBlocking,
+            BlockDestination = validatedDestination,
+            BlockDestinationType = validatedDestinationType,
+            CreatedAt = DateTime.Now
+        };
+
+        _context.Schedules.Add(schedule);
+        await _context.SaveChangesAsync();
+
+        TempData["Success"] = _localizer["Schedule_Success_Created"].Value;
+        return RedirectToAction("Schedules");
+    }
+
+    [HttpPost("schedules/delete/{id:int}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ScheduleDelete(int id)
+    {
+        var schedule = _context.Schedules
+            .Include(s => s.Profile)
+            .FirstOrDefault(s => s.Id == id);
+
+        if (schedule == null)
+        {
+            TempData["Error"] = _localizer["Schedule_Error_NotFound"].Value;
+            return RedirectToAction("Schedules");
+        }
+
+        if (schedule.ProfileId != null && schedule.Profile?.Role != "child")
+        {
+            TempData["Error"] = _localizer["Schedule_Error_Unauthorized"].Value;
+            return RedirectToAction("Schedules");
+        }
+
+        _context.Schedules.Remove(schedule);
+        await _context.SaveChangesAsync();
+
+        TempData["Success"] = _localizer["Schedule_Success_Deleted"].Value;
+        return RedirectToAction("Schedules");
+    }
+
+    [HttpGet("schedules/edit/{id:int}")]
+    public IActionResult ScheduleEditGet(int id) => RedirectToAction("Schedules");
+
+    [HttpPost("schedules/edit/{id:int}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ScheduleEdit(int id, int? profileId, int? clientId, string timeStart, string timeEnd, string days, bool isBlocking = true, string? blockDestination = null, string? blockDestinationType = null)
+    {
+        var schedule = _context.Schedules
+            .Include(s => s.Profile)
+            .FirstOrDefault(s => s.Id == id);
+
+        if (schedule == null)
+        {
+            TempData["Error"] = _localizer["Schedule_Error_NotFound"].Value;
+            return RedirectToAction("Schedules");
+        }
+
+        if (schedule.ProfileId != null && schedule.Profile?.Role != "child")
+        {
+            TempData["Error"] = _localizer["Schedule_Error_Unauthorized"].Value;
+            return RedirectToAction("Schedules");
+        }
+
+        if (!TimeOnly.TryParse(timeStart, out var start) || !TimeOnly.TryParse(timeEnd, out var end))
+        {
+            TempData["Error"] = _localizer["Schedule_Error_TimeRange"].Value;
+            return RedirectToAction("Schedules");
+        }
+
+        if (start >= end)
+        {
+            TempData["Error"] = _localizer["Schedule_Error_TimeRange"].Value;
+            return RedirectToAction("Schedules");
+        }
+
+        if (string.IsNullOrWhiteSpace(days) || days.Length != 7 || !days.All(c => c == '0' || c == '1') || !days.Contains('1'))
+        {
+            TempData["Error"] = _localizer["Schedule_Error_Days"].Value;
+            return RedirectToAction("Schedules");
+        }
+
+        if (profileId.HasValue && profileId > 0)
+        {
+            if (!_context.Profiles.Any(p => p.Id == profileId && p.Role == "child"))
+            {
+                TempData["Error"] = _localizer["Error_InvalidProfile"].Value;
+                return RedirectToAction("Schedules");
+            }
+        }
+
+        if (clientId.HasValue && clientId > 0)
+        {
+            var client = _context.Clients.FirstOrDefault(c => c.Id == clientId);
+            if (client == null || client.ProfileId == null ||
+                !_context.Profiles.Any(p => p.Id == client.ProfileId && p.Role == "child"))
+            {
+                TempData["Error"] = _localizer["Error_InvalidClient"].Value;
+                return RedirectToAction("Schedules");
+            }
+        }
+
+        string? validatedDestination = null;
+        string? validatedDestinationType = null;
+        if (isBlocking && !string.IsNullOrWhiteSpace(blockDestination))
+        {
+            var destType = blockDestinationType?.Trim().ToLower();
+            if (destType != "domain" && destType != "ip" && destType != "cidr")
+            {
+                TempData["Error"] = _localizer["Schedule_Error_InvalidBlockType"].Value;
+                return RedirectToAction("Schedules");
+            }
+
+            var dest = blockDestination.Trim().ToLower();
+            var valid = destType switch
+            {
+                "domain" => DomainRegex.IsMatch(dest),
+                "ip"     => System.Net.IPAddress.TryParse(dest, out _),
+                "cidr"   => CidrRegex.IsMatch(dest),
+                _        => false
+            };
+
+            if (!valid)
+            {
+                TempData["Error"] = _localizer["Schedule_Error_InvalidDestination"].Value;
+                return RedirectToAction("Schedules");
+            }
+
+            validatedDestination = dest;
+            validatedDestinationType = destType;
+        }
+
+        // Capture previous profile to reset scheduler state
+        var previousProfileId = schedule.ProfileId;
+
+        schedule.ProfileId = profileId > 0 ? profileId : null;
+        schedule.ClientId = clientId > 0 ? clientId : null;
+        schedule.TimeStart = start;
+        schedule.TimeEnd = end;
+        schedule.Days = days;
+        schedule.IsBlocking = isBlocking;
+        schedule.BlockDestination = validatedDestination;
+        schedule.BlockDestinationType = validatedDestinationType;
+
+        await _context.SaveChangesAsync();
+
+        // Reset scheduler state so next tick re-evaluates with updated schedule
+        var childProfileIds = _context.Profiles.Where(p => p.Role == "child").Select(p => p.Id).ToList();
+        if (schedule.ProfileId == null || previousProfileId == null)
+        {
+            // Global schedule (was or is): reset all child profiles
+            foreach (var pid in childProfileIds)
+                _scheduler.ResetProfileState(pid);
+        }
+        else
+        {
+            if (previousProfileId.HasValue)
+                _scheduler.ResetProfileState(previousProfileId.Value);
+            if (schedule.ProfileId.HasValue && schedule.ProfileId != previousProfileId)
+                _scheduler.ResetProfileState(schedule.ProfileId.Value);
+        }
+
+        TempData["Success"] = _localizer["Schedule_Success_Updated"].Value;
+        return RedirectToAction("Schedules");
+    }
+
+    [HttpPost("schedules/tempauth/create")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> TempAuthCreate(int profileId, int? clientId, int durationMinutes, string? allowDestination = null, string? allowDestinationType = null)
+    {
+        if (durationMinutes < 1 || durationMinutes > 1440)
+        {
+            TempData["Error"] = _localizer["TempAuth_Error_InvalidDuration"].Value;
+            return RedirectToAction("Schedules");
+        }
+
+        if (!_context.Profiles.Any(p => p.Id == profileId && p.Role == "child"))
+        {
+            TempData["Error"] = _localizer["TempAuth_Error_InvalidProfile"].Value;
+            return RedirectToAction("Schedules");
+        }
+
+        if (clientId.HasValue && clientId > 0)
+        {
+            var client = _context.Clients.FirstOrDefault(c => c.Id == clientId);
+            if (client == null || client.ProfileId != profileId)
+            {
+                TempData["Error"] = _localizer["Error_InvalidClient"].Value;
+                return RedirectToAction("Schedules");
+            }
+        }
+
+        string? validatedAllowDestination = null;
+        string? validatedAllowDestinationType = null;
+        if (!string.IsNullOrWhiteSpace(allowDestination))
+        {
+            var destType = allowDestinationType?.Trim().ToLower();
+            if (destType != "domain" && destType != "ip" && destType != "cidr")
+            {
+                TempData["Error"] = _localizer["TempAuth_Error_InvalidAllowType"].Value;
+                return RedirectToAction("Schedules");
+            }
+
+            var dest = allowDestination.Trim().ToLower();
+            var valid = destType switch
+            {
+                "domain" => DomainRegex.IsMatch(dest),
+                "ip"     => System.Net.IPAddress.TryParse(dest, out _),
+                "cidr"   => CidrRegex.IsMatch(dest),
+                _        => false
+            };
+
+            if (!valid)
+            {
+                TempData["Error"] = _localizer["TempAuth_Error_InvalidAllowDestination"].Value;
+                return RedirectToAction("Schedules");
+            }
+
+            validatedAllowDestination = dest;
+            validatedAllowDestinationType = destType;
+        }
+
+        var parentId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var now = DateTime.Now;
+
+        var tempAuth = new TempAuthorization
+        {
+            ProfileId = profileId,
+            ClientId = clientId > 0 ? clientId : null,
+            DurationMinutes = durationMinutes,
+            ActivatedAt = now,
+            ExpiresAt = now.AddMinutes(durationMinutes),
+            CreatedById = parentId,
+            AllowDestination = validatedAllowDestination,
+            AllowDestinationType = validatedAllowDestinationType
+        };
+
+        _context.TempAuthorizations.Add(tempAuth);
+        await _context.SaveChangesAsync();
+
+        TempData["Success"] = _localizer["TempAuth_Success_Created"].Value;
+        return RedirectToAction("Schedules");
+    }
+
+    [HttpPost("schedules/tempauth/delete/{id:int}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> TempAuthDelete(int id)
+    {
+        var parentId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+        var tempAuth = _context.TempAuthorizations.FirstOrDefault(t => t.Id == id);
+
+        if (tempAuth == null)
+        {
+            TempData["Error"] = _localizer["TempAuth_Error_NotFound"].Value;
+            return RedirectToAction("Schedules");
+        }
+
+        if (tempAuth.CreatedById != parentId)
+        {
+            TempData["Error"] = _localizer["TempAuth_Error_Unauthorized"].Value;
+            return RedirectToAction("Schedules");
+        }
+
+        _context.TempAuthorizations.Remove(tempAuth);
+        await _context.SaveChangesAsync();
+
+        TempData["Success"] = _localizer["TempAuth_Success_Deleted"].Value;
+        return RedirectToAction("Schedules");
     }
 
     [HttpGet("security")]

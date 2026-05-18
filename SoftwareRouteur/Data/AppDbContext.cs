@@ -20,6 +20,8 @@ public class AppDbContext : DbContext
     public DbSet<Challenge> Challenges { get; set; }
     public DbSet<ChallengeProof> ChallengeProofs { get; set; }
     public DbSet<Reward> Rewards { get; set; }
+    public DbSet<Schedule> Schedules { get; set; }
+    public DbSet<TempAuthorization> TempAuthorizations { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -81,5 +83,40 @@ public class AppDbContext : DbContext
             .WithMany(p => p.ProfileFirewallRules)
             .HasForeignKey(pfr => pfr.ProfileId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Schedule>()
+            .HasOne(s => s.Profile)
+            .WithMany()
+            .HasForeignKey(s => s.ProfileId)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<Schedule>()
+            .HasOne(s => s.Client)
+            .WithMany()
+            .HasForeignKey(s => s.ClientId)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        // TempAuthorization has two FKs to Profile — configure both explicitly
+        // to avoid EF cascade conflict (same pattern as Challenge).
+        modelBuilder.Entity<TempAuthorization>()
+            .HasOne(t => t.Profile)
+            .WithMany()
+            .HasForeignKey(t => t.ProfileId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<TempAuthorization>()
+            .HasOne(t => t.CreatedBy)
+            .WithMany()
+            .HasForeignKey(t => t.CreatedById)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<TempAuthorization>()
+            .HasOne(t => t.Client)
+            .WithMany()
+            .HasForeignKey(t => t.ClientId)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

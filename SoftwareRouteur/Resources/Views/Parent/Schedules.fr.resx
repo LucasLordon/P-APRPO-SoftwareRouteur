@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <data name="Page_Title" xml:space="preserve"><value>Plages &amp; Horaires</value></data>
+  <data name="Page_Subtitle" xml:space="preserve"><value>Planifiez des restrictions horaires et accordez des accès temporaires</value></data>
+  <data name="Tab_Schedules" xml:space="preserve"><value>Plages horaires</value></data>
+  <data name="Tab_TempAuths" xml:space="preserve"><value>Autorisations temporaires</value></data>
+  <data name="Btn_AddSchedule" xml:space="preserve"><value>Ajouter une plage</value></data>
+  <data name="Btn_AddTempAuth" xml:space="preserve"><value>Accorder un accès</value></data>
+  <data name="Btn_Cancel" xml:space="preserve"><value>Annuler</value></data>
+  <data name="Btn_Submit" xml:space="preserve"><value>Créer</value></data>
+  <data name="Btn_Grant" xml:space="preserve"><value>Accorder</value></data>
+  <data name="Col_Target" xml:space="preserve"><value>Cible</value></data>
+  <data name="Col_Days" xml:space="preserve"><value>Jours</value></data>
+  <data name="Col_Time" xml:space="preserve"><value>Horaire</value></data>
+  <data name="Col_Type" xml:space="preserve"><value>Type</value></data>
+  <data name="Col_Actions" xml:space="preserve"><value>Actions</value></data>
+  <data name="Col_Child" xml:space="preserve"><value>Enfant</value></data>
+  <data name="Col_Devices" xml:space="preserve"><value>Appareils</value></data>
+  <data name="Col_Duration" xml:space="preserve"><value>Durée</value></data>
+  <data name="Col_GrantedAt" xml:space="preserve"><value>Accordé à</value></data>
+  <data name="Col_ExpiresAt" xml:space="preserve"><value>Expire à</value></data>
+  <data name="Col_Status" xml:space="preserve"><value>Statut</value></data>
+  <data name="Label_Global" xml:space="preserve"><value>Global</value></data>
+  <data name="Label_AllDevices" xml:space="preserve"><value>Tous les appareils</value></data>
+  <data name="Label_Minutes" xml:space="preserve"><value>minutes</value></data>
+  <data name="Badge_Blocking" xml:space="preserve"><value>Bloquant</value></data>
+  <data name="Badge_Allowing" xml:space="preserve"><value>Autorisant</value></data>
+  <data name="Badge_Active" xml:space="preserve"><value>Actif</value></data>
+  <data name="Modal_Schedule_Title" xml:space="preserve"><value>Ajouter une plage horaire</value></data>
+  <data name="Modal_TempAuth_Title" xml:space="preserve"><value>Accorder une autorisation temporaire</value></data>
+  <data name="Field_Target" xml:space="preserve"><value>Appliquer à</value></data>
+  <data name="Option_Global" xml:space="preserve"><value>Global (toute la maison)</value></data>
+  <data name="OptGroup_Profiles" xml:space="preserve"><value>Profil entier</value></data>
+  <data name="OptGroup_Devices" xml:space="preserve"><value>Device spécifique</value></data>
+  <data name="Field_TimeStart" xml:space="preserve"><value>Début</value></data>
+  <data name="Field_TimeEnd" xml:space="preserve"><value>Fin</value></data>
+  <data name="Field_Days" xml:space="preserve"><value>Jours actifs</value></data>
+  <data name="Field_Type" xml:space="preserve"><value>Comportement</value></data>
+  <data name="Option_Blocking" xml:space="preserve"><value>Bloquer pendant cette plage</value></data>
+  <data name="Option_Allowing" xml:space="preserve"><value>Autoriser pendant cette plage</value></data>
+  <data name="Field_Child" xml:space="preserve"><value>Enfant</value></data>
+  <data name="Select_Child" xml:space="preserve"><value>Sélectionner un enfant...</value></data>
+  <data name="Field_Devices" xml:space="preserve"><value>Appareils</value></data>
+  <data name="Option_AllDevices" xml:space="preserve"><value>Tous les appareils</value></data>
+  <data name="Field_Duration" xml:space="preserve"><value>Durée</value></data>
+  <data name="Hint_AutoRevoke" xml:space="preserve"><value>L'accès sera automatiquement révoqué après cette durée.</value></data>
+  <data name="Tooltip_Delete" xml:space="preserve"><value>Supprimer</value></data>
+  <data name="Tooltip_Revoke" xml:space="preserve"><value>Révoquer</value></data>
+  <data name="Confirm_Delete" xml:space="preserve"><value>Supprimer cette plage horaire ?</value></data>
+  <data name="Confirm_Revoke" xml:space="preserve"><value>Révoquer cette autorisation ?</value></data>
+  <data name="Empty_Schedules" xml:space="preserve"><value>Aucune plage horaire configurée.</value></data>
+  <data name="Empty_TempAuths" xml:space="preserve"><value>Aucune autorisation temporaire active.</value></data>
+  <data name="Field_BlockScope" xml:space="preserve"><value>Portée du blocage</value></data>
+  <data name="Option_BlockAll" xml:space="preserve"><value>Tout l'accès Internet</value></data>
+  <data name="Option_BlockSite" xml:space="preserve"><value>Site / IP spécifique</value></data>
+  <data name="Field_BlockType" xml:space="preserve"><value>Type</value></data>
+  <data name="Field_BlockDestination" xml:space="preserve"><value>Destination</value></data>
+  <data name="BlockType_Domain" xml:space="preserve"><value>Domaine</value></data>
+  <data name="BlockType_IP" xml:space="preserve"><value>Adresse IP</value></data>
+  <data name="BlockType_CIDR" xml:space="preserve"><value>Réseau CIDR</value></data>
+  <data name="BlockDest_Placeholder" xml:space="preserve"><value>ex : youtube.com ou 1.2.3.4</value></data>
+  <data name="Tooltip_Edit" xml:space="preserve"><value>Modifier</value></data>
+  <data name="Col_Scope" xml:space="preserve"><value>Portée</value></data>
+  <data name="Label_FullAccess" xml:space="preserve"><value>Accès complet</value></data>
+  <data name="Field_AuthScope" xml:space="preserve"><value>Portée de l'autorisation</value></data>
+  <data name="Option_LiftAll" xml:space="preserve"><value>Lever toutes les restrictions</value></data>
+  <data name="Option_AllowSite" xml:space="preserve"><value>Autoriser un site spécifique</value></data>
+  <data name="Field_AllowType" xml:space="preserve"><value>Type</value></data>
+  <data name="Field_AllowDestination" xml:space="preserve"><value>Destination</value></data>
+  <data name="AllowType_Domain" xml:space="preserve"><value>Domaine</value></data>
+  <data name="AllowType_IP" xml:space="preserve"><value>Adresse IP</value></data>
+  <data name="AllowType_CIDR" xml:space="preserve"><value>Réseau CIDR</value></data>
+  <data name="AllowDest_Placeholder" xml:space="preserve"><value>ex. youtube.com ou 1.2.3.4</value></data>
+  <data name="Modal_Edit_Title" xml:space="preserve"><value>Modifier la plage horaire</value></data>
+  <data name="Btn_Save" xml:space="preserve"><value>Enregistrer</value></data>
+</root>

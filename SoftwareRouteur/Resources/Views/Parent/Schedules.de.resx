@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <data name="Page_Title" xml:space="preserve"><value>Zeitpläne</value></data>
+  <data name="Page_Subtitle" xml:space="preserve"><value>Zeitbasierte Sperren einrichten und temporären Zugriff gewähren</value></data>
+  <data name="Tab_Schedules" xml:space="preserve"><value>Zeitfenster</value></data>
+  <data name="Tab_TempAuths" xml:space="preserve"><value>Temporäre Freigaben</value></data>
+  <data name="Btn_AddSchedule" xml:space="preserve"><value>Zeitfenster hinzufügen</value></data>
+  <data name="Btn_AddTempAuth" xml:space="preserve"><value>Zugriff gewähren</value></data>
+  <data name="Btn_Cancel" xml:space="preserve"><value>Abbrechen</value></data>
+  <data name="Btn_Submit" xml:space="preserve"><value>Erstellen</value></data>
+  <data name="Btn_Grant" xml:space="preserve"><value>Gewähren</value></data>
+  <data name="Col_Target" xml:space="preserve"><value>Ziel</value></data>
+  <data name="Col_Days" xml:space="preserve"><value>Tage</value></data>
+  <data name="Col_Time" xml:space="preserve"><value>Uhrzeit</value></data>
+  <data name="Col_Type" xml:space="preserve"><value>Typ</value></data>
+  <data name="Col_Actions" xml:space="preserve"><value>Aktionen</value></data>
+  <data name="Col_Child" xml:space="preserve"><value>Kind</value></data>
+  <data name="Col_Devices" xml:space="preserve"><value>Geräte</value></data>
+  <data name="Col_Duration" xml:space="preserve"><value>Dauer</value></data>
+  <data name="Col_GrantedAt" xml:space="preserve"><value>Gewährt um</value></data>
+  <data name="Col_ExpiresAt" xml:space="preserve"><value>Läuft ab um</value></data>
+  <data name="Col_Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Label_Global" xml:space="preserve"><value>Global</value></data>
+  <data name="Label_AllDevices" xml:space="preserve"><value>Alle Geräte</value></data>
+  <data name="Label_Minutes" xml:space="preserve"><value>Minuten</value></data>
+  <data name="Badge_Blocking" xml:space="preserve"><value>Sperrend</value></data>
+  <data name="Badge_Allowing" xml:space="preserve"><value>Erlaubend</value></data>
+  <data name="Badge_Active" xml:space="preserve"><value>Aktiv</value></data>
+  <data name="Modal_Schedule_Title" xml:space="preserve"><value>Zeitfenster hinzufügen</value></data>
+  <data name="Modal_TempAuth_Title" xml:space="preserve"><value>Temporäre Freigabe gewähren</value></data>
+  <data name="Field_Target" xml:space="preserve"><value>Anwenden auf</value></data>
+  <data name="Option_Global" xml:space="preserve"><value>Global (ganzer Haushalt)</value></data>
+  <data name="OptGroup_Profiles" xml:space="preserve"><value>Gesamtes Profil</value></data>
+  <data name="OptGroup_Devices" xml:space="preserve"><value>Bestimmtes Gerät</value></data>
+  <data name="Field_TimeStart" xml:space="preserve"><value>Beginn</value></data>
+  <data name="Field_TimeEnd" xml:space="preserve"><value>Ende</value></data>
+  <data name="Field_Days" xml:space="preserve"><value>Aktive Tage</value></data>
+  <data name="Field_Type" xml:space="preserve"><value>Verhalten</value></data>
+  <data name="Option_Blocking" xml:space="preserve"><value>Während dieses Zeitfensters sperren</value></data>
+  <data name="Option_Allowing" xml:space="preserve"><value>Während dieses Zeitfensters erlauben</value></data>
+  <data name="Field_Child" xml:space="preserve"><value>Kind</value></data>
+  <data name="Select_Child" xml:space="preserve"><value>Kind auswählen...</value></data>
+  <data name="Field_Devices" xml:space="preserve"><value>Geräte</value></data>
+  <data name="Option_AllDevices" xml:space="preserve"><value>Alle Geräte</value></data>
+  <data name="Field_Duration" xml:space="preserve"><value>Dauer</value></data>
+  <data name="Hint_AutoRevoke" xml:space="preserve"><value>Der Zugriff wird nach dieser Dauer automatisch widerrufen.</value></data>
+  <data name="Tooltip_Delete" xml:space="preserve"><value>Löschen</value></data>
+  <data name="Tooltip_Revoke" xml:space="preserve"><value>Widerrufen</value></data>
+  <data name="Confirm_Delete" xml:space="preserve"><value>Dieses Zeitfenster löschen?</value></data>
+  <data name="Confirm_Revoke" xml:space="preserve"><value>Diese Freigabe widerrufen?</value></data>
+  <data name="Empty_Schedules" xml:space="preserve"><value>Keine Zeitfenster konfiguriert.</value></data>
+  <data name="Empty_TempAuths" xml:space="preserve"><value>Keine aktiven temporären Freigaben.</value></data>
+  <data name="Field_BlockScope" xml:space="preserve"><value>Sperrbereich</value></data>
+  <data name="Option_BlockAll" xml:space="preserve"><value>Gesamter Internetzugang</value></data>
+  <data name="Option_BlockSite" xml:space="preserve"><value>Bestimmte Website / IP</value></data>
+  <data name="Field_BlockType" xml:space="preserve"><value>Typ</value></data>
+  <data name="Field_BlockDestination" xml:space="preserve"><value>Ziel</value></data>
+  <data name="BlockType_Domain" xml:space="preserve"><value>Domain</value></data>
+  <data name="BlockType_IP" xml:space="preserve"><value>IP-Adresse</value></data>
+  <data name="BlockType_CIDR" xml:space="preserve"><value>CIDR-Netzwerk</value></data>
+  <data name="BlockDest_Placeholder" xml:space="preserve"><value>z.B. youtube.com oder 1.2.3.4</value></data>
+  <data name="Tooltip_Edit" xml:space="preserve"><value>Bearbeiten</value></data>
+  <data name="Col_Scope" xml:space="preserve"><value>Bereich</value></data>
+  <data name="Label_FullAccess" xml:space="preserve"><value>Vollzugriff</value></data>
+  <data name="Field_AuthScope" xml:space="preserve"><value>Freigabebereich</value></data>
+  <data name="Option_LiftAll" xml:space="preserve"><value>Alle Einschränkungen aufheben</value></data>
+  <data name="Option_AllowSite" xml:space="preserve"><value>Bestimmte Website erlauben</value></data>
+  <data name="Field_AllowType" xml:space="preserve"><value>Typ</value></data>
+  <data name="Field_AllowDestination" xml:space="preserve"><value>Ziel</value></data>
+  <data name="AllowType_Domain" xml:space="preserve"><value>Domain</value></data>
+  <data name="AllowType_IP" xml:space="preserve"><value>IP-Adresse</value></data>
+  <data name="AllowType_CIDR" xml:space="preserve"><value>CIDR-Netzwerk</value></data>
+  <data name="AllowDest_Placeholder" xml:space="preserve"><value>z.B. youtube.com oder 1.2.3.4</value></data>
+  <data name="Modal_Edit_Title" xml:space="preserve"><value>Zeitfenster bearbeiten</value></data>
+  <data name="Btn_Save" xml:space="preserve"><value>Speichern</value></data>
+</root>
