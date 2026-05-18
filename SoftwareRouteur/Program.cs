@@ -35,6 +35,8 @@ builder.Services.Configure<OPNsenseSettings>(
 
 builder.Services.AddSingleton<OPNsenseService>();
 builder.Services.AddHostedService<RewardTimerService>();
+builder.Services.AddSingleton<SchedulerService>();
+builder.Services.AddHostedService(sp => sp.GetRequiredService<SchedulerService>());
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
