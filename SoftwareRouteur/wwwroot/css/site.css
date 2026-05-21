@@ -798,8 +798,8 @@ select.sh-input {
     padding: 0.375rem 0.625rem;
   }
 
-  /* ── Tabs desktop : masqués sur mobile ── */
-  .sh-tabs {
+  /* ── Tabs desktop nav : masqués sur mobile ── */
+  .sh-header .sh-tabs {
     display: none;
   }
 
